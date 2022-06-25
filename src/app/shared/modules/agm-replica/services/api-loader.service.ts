@@ -1,15 +1,19 @@
 import { Inject, Injectable, LOCALE_ID, Optional } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import { Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 import { WINDOW } from '../tokens/window';
 import { GoogleMapsScriptProtocol, ILoaderApiConfig } from '../models/api-config.model';
 import { AGMR_API_CONFIG } from '../tokens/api-config';
 
 @Injectable()
 export class ApiLoaderService {
+  private loaded$: Subject<void> = new Subject<void>();
+
   private config: ILoaderApiConfig;
-  protected readonly SCRIPT_ID: string = 'agmrGoogleMapsApiScript';
-  protected readonly callbackName: string = 'agmrAPILoader';
+  private readonly SCRIPT_ID: string = 'agmrGoogleMapsApiScript';
+  private readonly callbackName: string = 'agmrAPILoader';
+
+  private blocking$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   constructor(
     @Optional() @Inject(AGMR_API_CONFIG) config: any = null,
@@ -26,20 +30,28 @@ export class ApiLoaderService {
       return of();
     }
     // otherwise...
-    const loaded$: Subject<void> = new Subject<void>();
 
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.async = true;
-    script.defer = true;
-    script.id = this.SCRIPT_ID;
-    script.src = this.getScriptSource(this.callbackName);
-    // @ts-ignore
-    window[this.callbackName] = () => loaded$.next();
-    script.onerror = (error: Event | string) => loaded$.error(error);
-    document.body.appendChild(script);
+    if (!this.blocking$.value) {
+      this.blocking$.next(true);
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.async = true;
+      script.defer = true;
+      script.id = this.SCRIPT_ID;
+      script.src = this.getScriptSource(this.callbackName);
+      // @ts-ignore
+      window[this.callbackName] = () => {
+        this.loaded$.next();
+        this.blocking$.next(false);
+      };
+      script.onerror = (error: Event | string) => {
+        this.loaded$.error(error);
+        this.blocking$.next(false);
+      };
+      document.body.appendChild(script);
+    }
 
-    return loaded$.asObservable();
+    return this.loaded$.asObservable();
   }
 
   private getScriptSource(callbackName: string): string {
