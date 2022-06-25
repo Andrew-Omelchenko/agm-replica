@@ -1,6 +1,5 @@
 import { Directive, Input } from '@angular/core';
 import { AgmrMapControl } from './agmr-map-control';
-import ControlPosition = google.maps.ControlPosition;
 
 @Directive({
   selector: 'agmr-map agmr-zoom-control',
@@ -14,7 +13,8 @@ export class AgmrZoomControl extends AgmrMapControl {
       zoomControl: true,
       zoomControlOptions: {
         position:
-          this.position && ((google.maps.ControlPosition[this.position] as unknown) as ControlPosition | undefined),
+          this.position &&
+          ((google.maps.ControlPosition[this.position] as unknown) as google.maps.ControlPosition | undefined),
         style: this.style && google.maps.ZoomControlStyle[this.style],
       },
     };

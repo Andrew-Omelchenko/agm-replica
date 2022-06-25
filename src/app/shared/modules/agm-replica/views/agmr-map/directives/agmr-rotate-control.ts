@@ -1,6 +1,5 @@
 import { Directive } from '@angular/core';
 import { AgmrMapControl } from './agmr-map-control';
-import ControlPosition = google.maps.ControlPosition;
 
 @Directive({
   selector: 'agmr-map agmr-rotate-control',
@@ -13,7 +12,8 @@ export class AgmrRotateControl extends AgmrMapControl {
       rotateControl: true,
       rotateControlOptions: {
         position:
-          this.position && ((google.maps.ControlPosition[this.position] as unknown) as ControlPosition | undefined),
+          this.position &&
+          ((google.maps.ControlPosition[this.position] as unknown) as google.maps.ControlPosition | undefined),
       },
     };
   }

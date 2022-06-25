@@ -1,6 +1,5 @@
 import { Directive, Input } from '@angular/core';
 import { AgmrMapControl } from './agmr-map-control';
-import ControlPosition = google.maps.ControlPosition;
 
 @Directive({
   selector: 'agmr-map agmr-map-type-control',
@@ -15,7 +14,9 @@ export class AgmrMapTypeControl extends AgmrMapControl {
     return {
       mapTypeControl: true,
       mapTypeControlOptions: {
-        position: this.position && ((ControlPosition[this.position] as unknown) as ControlPosition | undefined),
+        position:
+          this.position &&
+          ((google.maps.ControlPosition[this.position] as unknown) as google.maps.ControlPosition | undefined),
         style: this.style && google.maps.MapTypeControlStyle[this.style],
         mapTypeIds: this.mapTypeIds && this.mapTypeIds.map((mapTypeId) => google.maps.MapTypeId[mapTypeId]),
       },

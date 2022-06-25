@@ -1,6 +1,5 @@
 import { Directive } from '@angular/core';
 import { AgmrMapControl } from './agmr-map-control';
-import ControlPosition = google.maps.ControlPosition;
 
 @Directive({
   selector: 'agmr-map agmr-fullscreen-control',
@@ -12,7 +11,9 @@ export class AgmrFullscreenControl extends AgmrMapControl {
     return {
       fullscreenControl: true,
       fullscreenControlOptions: {
-        position: this.position && ((ControlPosition[this.position] as unknown) as ControlPosition | undefined),
+        position:
+          this.position &&
+          ((google.maps.ControlPosition[this.position] as unknown) as google.maps.ControlPosition | undefined),
       },
     };
   }
