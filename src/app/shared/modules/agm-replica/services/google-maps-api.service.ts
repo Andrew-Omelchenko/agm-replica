@@ -1,7 +1,7 @@
 import { Injectable, NgZone } from '@angular/core';
-import { Observable, ReplaySubject, throwError } from 'rxjs';
+import { Observable, of, ReplaySubject, throwError } from 'rxjs';
 import { ApiLoaderService } from './api-loader.service';
-import { catchError, first, tap } from 'rxjs/operators';
+import { catchError, first, map, switchMap, tap } from 'rxjs/operators';
 
 @Injectable()
 export class GoogleMapsApiService {
@@ -31,33 +31,72 @@ export class GoogleMapsApiService {
 
   public setCenter(latLng: google.maps.LatLngLiteral): void {
     this.zone.runOutsideAngular(() =>
-      this.mapSubject$.pipe(first()).subscribe((map: google.maps.Map) => map.setCenter(latLng)),
+      this.mapSubject$.pipe(first()).subscribe((m: google.maps.Map) => m.setCenter(latLng)),
     );
   }
 
+  public getCenter(): Observable<google.maps.LatLng> {
+    return this.zone.runOutsideAngular(() => {
+      return this.mapSubject$.pipe(
+        first(),
+        map((m: google.maps.Map) => m.getCenter()),
+      );
+    });
+  }
+
+  public setZoom(zoom: number): void {
+    this.zone.runOutsideAngular(() => {
+      this.mapSubject$.pipe(first()).subscribe((m: google.maps.Map) => m.setZoom(zoom));
+    });
+  }
+
+  public getZoom(): Observable<number> {
+    return this.zone.runOutsideAngular(() => {
+      return this.mapSubject$.pipe(map((m: google.maps.Map) => m.getZoom()));
+    });
+  }
+
+  public getBounds(): Observable<google.maps.LatLngBounds> {
+    return this.zone.runOutsideAngular(() => {
+      return this.mapSubject$.pipe(map((m: google.maps.Map) => m.getBounds() as google.maps.LatLngBounds));
+    });
+  }
+
+  public getMapTypeId(): Observable<google.maps.MapTypeId> {
+    return this.zone.runOutsideAngular(() => {
+      return this.mapSubject$.pipe(map((m: google.maps.Map) => m.getMapTypeId()));
+    });
+  }
+
   public panTo(latLng: google.maps.LatLng | google.maps.LatLngLiteral): void {
-    this.zone.runOutsideAngular(() => this.mapSubject$.pipe(first()).subscribe((map) => map.panTo(latLng)));
+    this.zone.runOutsideAngular(() => this.mapSubject$.pipe(first()).subscribe((m) => m.panTo(latLng)));
   }
 
   public panBy(x: number, y: number): void {
-    this.zone.runOutsideAngular(() => this.mapSubject$.pipe(first()).subscribe((map) => map.panBy(x, y)));
+    this.zone.runOutsideAngular(() => this.mapSubject$.pipe(first()).subscribe((m) => m.panBy(x, y)));
   }
 
   public fitBounds(
     latLng: google.maps.LatLngBounds | google.maps.LatLngBoundsLiteral,
     padding?: number | google.maps.Padding,
   ): void {
-    this.zone.runOutsideAngular(() =>
-      this.mapSubject$.pipe(first()).subscribe((map) => map.fitBounds(latLng, padding)),
-    );
+    this.zone.runOutsideAngular(() => this.mapSubject$.pipe(first()).subscribe((m) => m.fitBounds(latLng, padding)));
   }
 
   public panToBounds(
     latLng: google.maps.LatLngBounds | google.maps.LatLngBoundsLiteral,
     padding?: number | google.maps.Padding,
   ): void {
-    this.zone.runOutsideAngular(() =>
-      this.mapSubject$.pipe(first()).subscribe((map) => map.panToBounds(latLng, padding)),
+    this.zone.runOutsideAngular(() => this.mapSubject$.pipe(first()).subscribe((m) => m.panToBounds(latLng, padding)));
+  }
+
+  /**
+   * Triggers the given event name on the map instance.
+   */
+  public triggerMapEvent(eventName: string): Observable<void> {
+    return this.mapSubject$.pipe(
+      tap((m) => google.maps.event.trigger(m, eventName)),
+      switchMap(() => of<void>()),
     );
   }
 
@@ -65,9 +104,17 @@ export class GoogleMapsApiService {
     return this.mapSubject$.asObservable();
   }
 
+  public subscribeToMapEvent(eventName: string): Observable<any> {
+    return new Observable((observer) => {
+      this.mapSubject$
+        .pipe(first())
+        .subscribe((m) => m.addListener(eventName, (...evArgs: any) => this.zone.run(() => observer.next(evArgs))));
+    });
+  }
+
   public clearInstanceListeners(): void {
     this.zone.runOutsideAngular(() =>
-      this.mapSubject$.pipe(first()).subscribe((map: google.maps.Map) => google.maps.event.clearInstanceListeners(map)),
+      this.mapSubject$.pipe(first()).subscribe((m: google.maps.Map) => google.maps.event.clearInstanceListeners(m)),
     );
   }
 }

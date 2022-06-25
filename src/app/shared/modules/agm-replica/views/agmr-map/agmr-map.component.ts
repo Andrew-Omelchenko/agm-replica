@@ -1,5 +1,7 @@
 import {
+  AfterContentInit,
   Component,
+  ContentChildren,
   ElementRef,
   EventEmitter,
   Input,
@@ -8,6 +10,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  QueryList,
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
@@ -16,13 +19,14 @@ import { first, map } from 'rxjs/operators';
 
 import { GoogleMapsApiService } from '../../services/google-maps-api.service';
 import { FitBoundsService } from '../../services/fit-bounds.service';
+import { AgmrMapControl } from './directives/agmr-map-control';
 
 @Component({
   selector: 'app-agmr-map',
   templateUrl: './agmr-map.component.html',
   styleUrls: ['./agmr-map.component.scss'],
 })
-export class AgmrMapComponent implements OnInit, OnChanges, OnDestroy {
+export class AgmrMapComponent implements OnInit, OnChanges, AfterContentInit, OnDestroy {
   /**
    * Map option attributes that can change over time
    */
@@ -209,21 +213,23 @@ export class AgmrMapComponent implements OnInit, OnChanges, OnDestroy {
    * marker or infoWindow).
    */
   // tslint:disable-next-line: max-line-length
-  @Output() public mapClick: EventEmitter<google.maps.MouseEvent | google.maps.IconMouseEvent> = new EventEmitter<
-    google.maps.MouseEvent | google.maps.IconMouseEvent
+  @Output() public mapClick: EventEmitter<google.maps.MapMouseEvent | google.maps.IconMouseEvent> = new EventEmitter<
+    google.maps.MapMouseEvent | google.maps.IconMouseEvent
   >();
 
   /**
    * This event emitter gets emitted when the user right-clicks on the map (but not when they click
    * on a marker or infoWindow).
    */
-  @Output() public mapRightClick: EventEmitter<google.maps.MouseEvent> = new EventEmitter<google.maps.MouseEvent>();
+  @Output() public mapRightClick: EventEmitter<google.maps.MapMouseEvent> = new EventEmitter<
+    google.maps.MapMouseEvent
+  >();
 
   /**
    * This event emitter gets emitted when the user double-clicks on the map (but not when they click
    * on a marker or infoWindow).
    */
-  @Output() public mapDblClick: EventEmitter<google.maps.MouseEvent> = new EventEmitter<google.maps.MouseEvent>();
+  @Output() public mapDblClick: EventEmitter<google.maps.MapMouseEvent> = new EventEmitter<google.maps.MapMouseEvent>();
 
   /**
    * This event emitter is fired when the map center changes.
@@ -266,7 +272,8 @@ export class AgmrMapComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('mapContainer', { static: true })
   private mapContainerRef: ElementRef<HTMLElement> | undefined;
 
-  // @ContentChildren(AgmrMapControl) mapControls: QueryList<AgmrMapControl>;
+  @ContentChildren(AgmrMapControl)
+  private mapControls: QueryList<AgmrMapControl> | undefined;
 
   constructor(
     private elem: ElementRef,
@@ -284,6 +291,18 @@ export class AgmrMapComponent implements OnInit, OnChanges, OnDestroy {
   public ngOnChanges(changes: SimpleChanges): void {
     this.updateMapOptionsChanges(changes);
     this.updatePosition(changes);
+  }
+
+  public ngAfterContentInit(): void {
+    // register event listeners
+    this.handleMapCenterChange();
+    this.handleMapZoomChange();
+    this.handleMapMouseEvents();
+    this.handleBoundsChange();
+    this.handleMapTypeIdChange();
+    this.handleTilesLoadedEvent();
+    this.handleIdleEvent();
+    this.handleControlChange();
   }
 
   public ngOnDestroy(): void {
@@ -324,7 +343,9 @@ export class AgmrMapComponent implements OnInit, OnChanges, OnDestroy {
         first(),
         map(() => this.apiWrapper.getNativeMap()),
       )
-      .subscribe((mapInstance) => this.mapReady.emit(mapInstance));
+      .subscribe((mapInstance) => {
+        this.mapReady.emit(mapInstance);
+      });
   }
 
   private updateMapOptionsChanges(changes: SimpleChanges) {
@@ -352,6 +373,27 @@ export class AgmrMapComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
     this.setCenter();
+  }
+
+  /**
+   * Triggers a resize event on the Google Map instance.
+   * When recenter is true, the of the Google Map gets called with the current lat/lng values or fitBounds value to recenter the map.
+   * Returns a promise that gets resolved after the event was triggered.
+   */
+  public triggerResize(recenter: boolean = true): void {
+    // Note: When we would trigger the resize event and show the map in the same turn (which is a
+    // common case for triggering a resize event), then the resize event would not
+    // work (to show the map), so we trigger the event in a timeout.
+    setTimeout(() => {
+      this.apiWrapper
+        .triggerMapEvent('resize')
+        .pipe(first())
+        .subscribe(() => {
+          if (recenter) {
+            this.fitBounds != null ? this.fitContentBounds() : this.setCenter();
+          }
+        });
+    });
   }
 
   private fitContentBounds() {
@@ -415,6 +457,97 @@ export class AgmrMapComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       this.apiWrapper.setCenter(newCenter);
     }
+  }
+
+  private handleMapCenterChange(): void {
+    const s = this.apiWrapper.subscribeToMapEvent('center_changed').subscribe(() => {
+      this.apiWrapper.getCenter().subscribe((center: google.maps.LatLng) => {
+        this.latitude = center.lat();
+        this.longitude = center.lng();
+        this.centerChange.emit({ lat: this.latitude, lng: this.longitude } as google.maps.LatLngLiteral);
+      });
+    });
+    this.observableSubscriptions.push(s);
+  }
+
+  private handleMapZoomChange(): void {
+    const s = this.apiWrapper.subscribeToMapEvent('zoom_changed').subscribe(() => {
+      this.apiWrapper.getZoom().subscribe((z: number) => {
+        this.zoom = z;
+        this.zoomChange.emit(z);
+      });
+    });
+    this.observableSubscriptions.push(s);
+  }
+
+  private handleMapMouseEvents(): void {
+    type Event = { name: 'rightclick' | 'click' | 'dblclick'; emitter: EventEmitter<google.maps.MouseEvent> };
+
+    const events: Event[] = [
+      { name: 'click', emitter: this.mapClick },
+      { name: 'rightclick', emitter: this.mapRightClick },
+      { name: 'dblclick', emitter: this.mapDblClick },
+    ];
+
+    events.forEach((e) => {
+      const s = this.apiWrapper.subscribeToMapEvent(e.name).subscribe(([event]) => {
+        // the placeId will be undefined in case the event was not an IconMouseEvent (google types)
+        if ((event as google.maps.IconMouseEvent).placeId && !this.showDefaultInfoWindow) {
+          event.stop();
+        }
+        e.emitter.emit(event);
+      });
+      this.observableSubscriptions.push(s);
+    });
+  }
+
+  private handleBoundsChange(): void {
+    const s = this.apiWrapper.subscribeToMapEvent('bounds_changed').subscribe(() => {
+      this.apiWrapper.getBounds().subscribe((bounds: google.maps.LatLngBounds) => {
+        this.boundsChange.emit(bounds);
+      });
+    });
+    this.observableSubscriptions.push(s);
+  }
+
+  private handleMapTypeIdChange(): void {
+    const s = this.apiWrapper.subscribeToMapEvent('maptypeid_changed').subscribe(() => {
+      this.apiWrapper.getMapTypeId().subscribe((mapTypeId: google.maps.MapTypeId) => {
+        this.mapTypeIdChange.emit(mapTypeId);
+      });
+    });
+    this.observableSubscriptions.push(s);
+  }
+
+  private handleTilesLoadedEvent() {
+    const s = this.apiWrapper.subscribeToMapEvent('tilesloaded').subscribe(() => this.tilesLoaded.emit(void 0));
+    this.observableSubscriptions.push(s);
+  }
+
+  private handleIdleEvent(): void {
+    const s = this.apiWrapper.subscribeToMapEvent('idle').subscribe(() => {
+      this.idle.emit(void 0);
+    });
+    this.observableSubscriptions.push(s);
+  }
+
+  private handleControlChange(): void {
+    this.setControls();
+    this.mapControls?.changes.subscribe(() => this.setControls());
+  }
+
+  private setControls(): void {
+    const controlOptions: Partial<google.maps.MapOptions> = {
+      fullscreenControl: !this.disableDefaultUI,
+      mapTypeControl: false,
+      panControl: false,
+      rotateControl: false,
+      scaleControl: false,
+      streetViewControl: !this.disableDefaultUI,
+      zoomControl: !this.disableDefaultUI,
+    };
+    this.mapControls?.forEach((control) => Object.assign(controlOptions, control.getOptions()));
+    this.apiWrapper.setMapOptions(controlOptions);
   }
 }
 

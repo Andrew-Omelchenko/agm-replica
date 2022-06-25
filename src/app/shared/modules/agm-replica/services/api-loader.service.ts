@@ -27,7 +27,7 @@ export class ApiLoaderService {
   public load(): Observable<void> {
     // Google Maps have been already loaded
     if (window?.google?.maps) {
-      return of();
+      return of<void>();
     }
     // otherwise...
 
