@@ -17,6 +17,7 @@ import { MarkerManagerService } from './services/marker-manager.service';
 import { AgmrMarker } from './directives/agmr-marker.directive';
 import { AgmrInfoWindowComponent } from './views/agmr-info-window/agmr-info-window.component';
 import { InfoWindowManagerService } from './services/info-window-manager.service';
+import { AgmrSnazzyInfoWindowComponent } from './views/agmr-snazzy-info-window/agmr-snazzy-info-window.component';
 
 @NgModule({
   declarations: [
@@ -30,6 +31,7 @@ import { InfoWindowManagerService } from './services/info-window-manager.service
     AgmrZoomControl,
     AgmrMarker,
     AgmrInfoWindowComponent,
+    AgmrSnazzyInfoWindowComponent,
   ],
   imports: [CommonModule],
   exports: [AgmrMapComponent, AgmrMarker, AgmrInfoWindowComponent],
