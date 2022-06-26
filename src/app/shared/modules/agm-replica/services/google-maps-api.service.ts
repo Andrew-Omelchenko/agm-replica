@@ -1,7 +1,7 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Observable, of, ReplaySubject, throwError } from 'rxjs';
 import { GoogleMapsApiLoaderService } from './google-maps-api-loader.service';
-import { catchError, first, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, first, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 
 @Injectable()
 export class GoogleMapsApiService {
@@ -44,13 +44,17 @@ export class GoogleMapsApiService {
           }
           return new google.maps.Marker(options);
         }),
+        shareReplay(1),
       );
     });
   }
 
   public createInfoWindow(options?: google.maps.InfoWindowOptions): Observable<google.maps.InfoWindow> {
     return this.zone.runOutsideAngular(() => {
-      return this.mapSubject$.pipe(map(() => new google.maps.InfoWindow(options)));
+      return this.mapSubject$.pipe(
+        map(() => new google.maps.InfoWindow(options)),
+        shareReplay(1),
+      );
     });
   }
 
