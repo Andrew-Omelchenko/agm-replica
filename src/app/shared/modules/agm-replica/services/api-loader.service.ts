@@ -30,7 +30,6 @@ export class ApiLoaderService {
       return of<void>();
     }
     // otherwise...
-
     if (!this.blocking$.value) {
       this.blocking$.next(true);
       const script = document.createElement('script');
@@ -85,7 +84,7 @@ export class ApiLoaderService {
       .filter((k: string) => queryParams[k] !== null)
       .filter((k: string) => {
         // remove empty arrays
-        return !Array.isArray(queryParams[k]) || (Array.isArray(queryParams[k]) && queryParams[k]?.length === 0);
+        return !Array.isArray(queryParams[k]) || (Array.isArray(queryParams[k]) && (queryParams[k]?.length || 0) > 0);
       })
       .map((k: string) => {
         // join arrays as comma separated strings
