@@ -143,14 +143,14 @@ export class AgmrMarker implements OnDestroy, OnChanges, AfterContentInit, FitBo
 
   private readonly _id: string;
   private observableSubscriptions: Subscription[] = [];
-  private markerAddedToManger = false;
+  private markerAddedToManager = false;
 
   private readonly fitBoundsDetails$: ReplaySubject<IFitBoundsDetails> = new ReplaySubject<IFitBoundsDetails>(1);
 
   constructor(private markerManager: MarkerManagerService) {
     this._id = IdGenerator()
       .next()
-      .toString();
+      .value.toString();
   }
 
   /* @internal */
@@ -170,10 +170,10 @@ export class AgmrMarker implements OnDestroy, OnChanges, AfterContentInit, FitBo
     if (typeof this.latitude !== 'number' || typeof this.longitude !== 'number') {
       return;
     }
-    if (!this.markerAddedToManger) {
+    if (!this.markerAddedToManager) {
       this.markerManager.addMarker(this);
       this.updateFitBoundsDetails();
-      this.markerAddedToManger = true;
+      this.markerAddedToManager = true;
       this.addEventListeners();
       return;
     }

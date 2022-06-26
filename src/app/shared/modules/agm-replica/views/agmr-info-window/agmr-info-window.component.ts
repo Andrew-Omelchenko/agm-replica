@@ -79,7 +79,7 @@ export class AgmrInfoWindowComponent implements OnInit, OnChanges, OnDestroy {
   constructor(private infoWindowManager: InfoWindowManagerService, private elRef: ElementRef) {
     this._id = IdGenerator()
       .next()
-      .toString();
+      .value.toString();
   }
 
   public ngOnInit(): void {
