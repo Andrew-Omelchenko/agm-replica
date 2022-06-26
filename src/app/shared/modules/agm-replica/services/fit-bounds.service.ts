@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { ApiLoaderService } from './api-loader.service';
 import { BehaviorSubject, Observable, timer } from 'rxjs';
 import { flatMap, map, sample, shareReplay, switchMap } from 'rxjs/operators';
+
+import { GoogleMapsApiLoaderService } from './google-maps-api-loader.service';
 import { BoundsMap } from '../types/common.types';
 
 @Injectable()
@@ -12,7 +13,7 @@ export class FitBoundsService {
     new Map<string, google.maps.LatLng | google.maps.LatLngLiteral>(),
   );
 
-  constructor(private loader: ApiLoaderService) {
+  constructor(private loader: GoogleMapsApiLoaderService) {
     this.bounds$ = loader.load().pipe(
       flatMap(() => this.includeInBounds$),
       sample(this.boundsChangeSampleTime$.pipe(switchMap((time) => timer(0, time)))),

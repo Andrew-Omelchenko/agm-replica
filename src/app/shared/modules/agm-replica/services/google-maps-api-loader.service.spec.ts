@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { ApiLoaderService } from './api-loader.service';
+import { GoogleMapsApiLoaderService } from './api-loader.service';
 
 describe('ApiLoaderService', () => {
-  let service: ApiLoaderService;
+  let service: GoogleMapsApiLoaderService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(ApiLoaderService);
+    service = TestBed.inject(GoogleMapsApiLoaderService);
   });
 
   it('should be created', () => {

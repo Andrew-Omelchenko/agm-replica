@@ -6,7 +6,7 @@ import { GoogleMapsScriptProtocol, ILoaderApiConfig } from '../models/api-config
 import { AGMR_API_CONFIG } from '../tokens/api-config';
 
 @Injectable()
-export class ApiLoaderService {
+export class GoogleMapsApiLoaderService {
   private loaded$: Subject<void> = new Subject<void>();
 
   private config: ILoaderApiConfig;

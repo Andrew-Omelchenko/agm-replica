@@ -1,13 +1,13 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Observable, of, ReplaySubject, throwError } from 'rxjs';
-import { ApiLoaderService } from './api-loader.service';
+import { GoogleMapsApiLoaderService } from './google-maps-api-loader.service';
 import { catchError, first, map, switchMap, tap } from 'rxjs/operators';
 
 @Injectable()
 export class GoogleMapsApiService {
   private mapSubject$: ReplaySubject<google.maps.Map> = new ReplaySubject<google.maps.Map>(1);
 
-  constructor(private loader: ApiLoaderService, private zone: NgZone) {}
+  constructor(private loader: GoogleMapsApiLoaderService, private zone: NgZone) {}
 
   public createMap(el: HTMLElement, mapOptions: google.maps.MapOptions): Observable<void> {
     return this.zone.runOutsideAngular(() => {
