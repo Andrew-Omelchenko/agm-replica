@@ -29,6 +29,31 @@ export class GoogleMapsApiService {
     );
   }
 
+  /**
+   * Creates a Google Map marker with the map context
+   */
+  public createMarker(
+    options: google.maps.MarkerOptions = {},
+    addToMap: boolean = true,
+  ): Observable<google.maps.Marker> {
+    return this.zone.runOutsideAngular(() => {
+      return this.mapSubject$.pipe(
+        map((m: google.maps.Map) => {
+          if (addToMap) {
+            options.map = m;
+          }
+          return new google.maps.Marker(options);
+        }),
+      );
+    });
+  }
+
+  public createInfoWindow(options?: google.maps.InfoWindowOptions): Observable<google.maps.InfoWindow> {
+    return this.zone.runOutsideAngular(() => {
+      return this.mapSubject$.pipe(map(() => new google.maps.InfoWindow(options)));
+    });
+  }
+
   public setCenter(latLng: google.maps.LatLngLiteral): void {
     this.zone.runOutsideAngular(() =>
       this.mapSubject$.pipe(first()).subscribe((m: google.maps.Map) => m.setCenter(latLng)),

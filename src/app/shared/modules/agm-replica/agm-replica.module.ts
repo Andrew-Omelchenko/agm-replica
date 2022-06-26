@@ -13,6 +13,10 @@ import { AgmrRotateControl } from './views/agmr-map/directives/agmr-rotate-contr
 import { AgmrScaleControl } from './views/agmr-map/directives/agmr-scale-control';
 import { AgmrStreetViewControl } from './views/agmr-map/directives/agmr-street-view-control';
 import { AgmrZoomControl } from './views/agmr-map/directives/agmr-zoom-control';
+import { MarkerManagerService } from './services/marker-manager.service';
+import { AgmrMarker } from './directives/agmr-marker.directive';
+import { AgmrInfoWindowComponent } from './views/agmr-info-window/agmr-info-window.component';
+import { InfoWindowManagerService } from './services/info-window-manager.service';
 
 @NgModule({
   declarations: [
@@ -24,6 +28,8 @@ import { AgmrZoomControl } from './views/agmr-map/directives/agmr-zoom-control';
     AgmrScaleControl,
     AgmrStreetViewControl,
     AgmrZoomControl,
+    AgmrMarker,
+    AgmrInfoWindowComponent,
   ],
   imports: [CommonModule],
   exports: [AgmrMapComponent],
@@ -33,10 +39,12 @@ export class AgmReplicaModule {
     return {
       ngModule: AgmReplicaModule,
       providers: [
+        { provide: AGMR_API_CONFIG, useValue: config },
         GoogleMapsApiLoaderService,
         GoogleMapsApiService,
         FitBoundsService,
-        { provide: AGMR_API_CONFIG, useValue: config },
+        MarkerManagerService,
+        InfoWindowManagerService,
       ],
     };
   }
