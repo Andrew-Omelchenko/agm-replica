@@ -19,7 +19,7 @@ import { IdGenerator } from '../utils/id-generator';
 import { AgmrInfoWindowComponent } from '../views/agmr-info-window/agmr-info-window.component';
 
 @Directive({
-  selector: '[agmr-marker]',
+  selector: 'agmr-marker',
   providers: [{ provide: FitBoundsAccessor, useExisting: forwardRef(() => AgmrMarker) }],
 })
 // tslint:disable:directive-class-suffix

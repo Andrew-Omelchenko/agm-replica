@@ -6,4 +6,16 @@
   [minZoom]="3"
   [maxZoom]="14"
   [style.height.vw]="63"
-></agmr-map>
+>
+  <agmr-marker
+    [latitude]="49.23099"
+    [longitude]="-123.17769"
+    [label]="'M'"
+    [title]="'Test marker'"
+    [markerClickable]="true"
+  >
+    <agmr-info-window [disableAutoPan]="true">
+      Hi, this is the content of the <strong>info window</strong>
+    </agmr-info-window>
+  </agmr-marker>
+</agmr-map>

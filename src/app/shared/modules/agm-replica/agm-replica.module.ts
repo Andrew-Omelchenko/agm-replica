@@ -32,7 +32,7 @@ import { InfoWindowManagerService } from './services/info-window-manager.service
     AgmrInfoWindowComponent,
   ],
   imports: [CommonModule],
-  exports: [AgmrMapComponent],
+  exports: [AgmrMapComponent, AgmrMarker, AgmrInfoWindowComponent],
 })
 export class AgmReplicaModule {
   static forRoot(config?: ILoaderApiConfig): ModuleWithProviders<AgmReplicaModule> {
