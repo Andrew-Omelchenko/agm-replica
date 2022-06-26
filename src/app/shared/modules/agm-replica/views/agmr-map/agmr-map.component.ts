@@ -22,7 +22,7 @@ import { FitBoundsService } from '../../services/fit-bounds.service';
 import { AgmrMapControl } from './directives/agmr-map-control';
 
 @Component({
-  selector: 'app-agmr-map',
+  selector: 'agmr-map',
   templateUrl: './agmr-map.component.html',
   styleUrls: ['./agmr-map.component.scss'],
 })
