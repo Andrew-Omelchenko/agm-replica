@@ -34,7 +34,7 @@ import { AgmrSnazzyInfoWindowComponent } from './views/agmr-snazzy-info-window/a
     AgmrSnazzyInfoWindowComponent,
   ],
   imports: [CommonModule],
-  exports: [AgmrMapComponent, AgmrMarker, AgmrInfoWindowComponent],
+  exports: [AgmrMapComponent, AgmrMarker, AgmrInfoWindowComponent, AgmrSnazzyInfoWindowComponent],
 })
 export class AgmReplicaModule {
   static forRoot(config?: ILoaderApiConfig): ModuleWithProviders<AgmReplicaModule> {

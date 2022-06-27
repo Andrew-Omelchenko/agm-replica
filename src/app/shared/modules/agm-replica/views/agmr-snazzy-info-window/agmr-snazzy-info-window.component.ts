@@ -20,7 +20,7 @@ import { AgmrMarker } from '../../directives/agmr-marker.directive';
 import { GoogleMapsApiLoaderService } from '../../services/google-maps-api-loader.service';
 import { GoogleMapsApiService } from '../../services/google-maps-api.service';
 import { MarkerManagerService } from '../../services/marker-manager.service';
-import { SnazzyInfoWindow } from './snazzy-info-window/classes/snazzy-info-window.class';
+import { getSnazzyInfoWindowReplicaInstance } from './snazzy-info-window/classes/snazzy-info-window.class';
 import { first, map, shareReplay, switchMap } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
 
@@ -205,8 +205,9 @@ export class AgmrSnazzyInfoWindowComponent implements AfterViewInit, OnDestroy, 
    */
   public ngAfterViewInit(): void {
     const markerObservable = this.manager.getNativeMarker(this.marker);
-    this.snazzyInfoWindowInitialized = this.wrapper.getNativeMap().pipe(
+    this.snazzyInfoWindowInitialized = this.loader.load().pipe(
       first(),
+      switchMap(() => this.wrapper.getNativeMap()),
       switchMap((nativeMap) =>
         markerObservable
           ? markerObservable.pipe(
@@ -257,7 +258,7 @@ export class AgmrSnazzyInfoWindowComponent implements AfterViewInit, OnDestroy, 
             lng: this.longitude,
           };
         }
-        this.nativeSnazzyInfoWindow = new SnazzyInfoWindow(options);
+        this.nativeSnazzyInfoWindow = getSnazzyInfoWindowReplicaInstance(options);
       }),
       shareReplay(1),
     );

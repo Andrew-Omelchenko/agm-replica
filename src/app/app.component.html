@@ -14,8 +14,22 @@
     [title]="'Test marker'"
     [markerClickable]="true"
   >
-    <agmr-info-window [disableAutoPan]="true">
-      Hi, this is the content of the <strong>info window</strong>
-    </agmr-info-window>
+    <!--    <agmr-info-window [disableAutoPan]="true">-->
+    <!--      Hi, this is the content of the <strong>info window</strong>-->
+    <!--    </agmr-info-window>-->
+    <agmr-snazzy-info-window
+      [openOnMarkerClick]="true"
+      [panOnOpen]="true"
+      [showCloseButton]="false"
+      [closeOnMapClick]="true"
+      [closeWhenOthersOpen]="true"
+      [placement]="'right'"
+      [wrapperClass]="'info-window-wrapper'"
+      [pointer]="true"
+    >
+      <ng-template>
+        <div>Snazzy Info Window Test</div>
+      </ng-template>
+    </agmr-snazzy-info-window>
   </agmr-marker>
 </agmr-map>

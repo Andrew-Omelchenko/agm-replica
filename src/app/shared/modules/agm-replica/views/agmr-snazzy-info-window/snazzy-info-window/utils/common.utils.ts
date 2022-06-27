@@ -1,4 +1,4 @@
-import { DEFAULT_OPTIONS } from '../constants/common.const';
+import { DEFAULT_OPTIONS } from '../constants/common.constants';
 
 // Copy keys from the source into the target
 function copyKeys(target: { [key: string]: any }, source: { [key: string]: any }) {
