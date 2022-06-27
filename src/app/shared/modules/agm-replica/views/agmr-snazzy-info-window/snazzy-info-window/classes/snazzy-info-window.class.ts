@@ -1,18 +1,29 @@
-/* tslint:disable */
-// @ts-ignore-start
 import { toLatLng } from '../utils/map.utils';
 import { mergeDefaultOptions } from '../utils/common.utils';
-import { DEFAULT_OPTIONS } from '../constants/common.constants';
+import {
+  CLASS_PREFIX,
+  DEFAULT_OPTIONS,
+  DEFAULT_SHADOW,
+  EVENT_PREFIX,
+  INVERSE_ROOT_2,
+  ROOT_2,
+} from '../constants/common.constants';
+import { IListenerRecord } from '../models/listener-record.model';
+import { capitalizePlacement, oppositePlacement, parseAttribute, setHTML } from '../utils/content.utils';
+import { IParsedAttribute } from '../models/parsed-attribute.model';
 
 export class SnazzyInfoWindow extends google.maps.OverlayView {
-  private _html;
+  private _html: any;
   private _opts: { [key: string]: any };
-  private _callbacks: { [key: string]: () => void };
+  private _callbacks: { [key: string]: () => any };
   private _marker: google.maps.Marker;
   private _map: google.maps.Map;
   private _position: google.maps.LatLng | null;
   private _isOpen = false;
-  private _listeners = [];
+  private _listeners: IListenerRecord[] = [];
+
+  private _previousWidth: number | null = null;
+  private _previousHeight: number | null = null;
 
   constructor(opts: { [key: string]: any }) {
     super();
@@ -76,61 +87,62 @@ export class SnazzyInfoWindow extends google.maps.OverlayView {
   }
 
   // Activate the specified callback and return the result
-  public activateCallback(callback: any) {
+  public activateCallback(callback: any): any {
     const lambda = this._callbacks[callback];
     return lambda ? lambda.apply(this) : undefined;
   }
 
   // Track the provided listener. A persistent listener means it remains
   // tracked even if the info window is closed.
-  public trackListener(listener: any, persistent: boolean) {
+  public trackListener(listener: google.maps.MapsEventListener, persistent: boolean = false): void {
     this._listeners.push({ listener, persistent });
   }
 
   // Will clear all listeners that are used during the open state.
-  clearListeners(clearPersistent) {
+  public clearListeners(clearPersistent: boolean = false): void {
     if (this._listeners) {
       this._listeners.forEach((e) => {
-        if (clearPersistent || !e.persistent) {
+        if ((clearPersistent || !e.persistent) && e.listener) {
           google.maps.event.removeListener(e.listener);
           e.listener = null;
         }
       });
       this._listeners = this._listeners.filter((e) => {
-        return e.listener != null;
+        return e.listener !== null;
       });
     }
   }
 
-  isOpen() {
+  public isOpen(): boolean {
     return this._isOpen;
   }
 
   // Open the info window after attaching to a specific marker.
-  open() {
+  public open(): void {
     const result = this.activateCallback('beforeOpen');
     if (result !== undefined && !result) {
       return;
     }
-    if (this._marker) {
-      this.setMap(this._marker.getMap());
+    const m = this._marker ? this._marker.getMap() : null;
+    if (m) {
+      this.setMap(m);
     } else if (this._map && this._position) {
       this.setMap(this._map);
     }
   }
 
   // Close the info window.
-  close() {
+  public close(): void {
     const result = this.activateCallback('beforeClose');
     if (result !== undefined && !result) {
       return;
     }
-    this.clearListeners();
+    this.clearListeners(false);
     this.setMap(null);
   }
 
   // Force close the map and remove any event listeners attached to google
-  destroy() {
+  public destroy(): void {
     if (this.getMap()) {
       this.setMap(null);
     }
@@ -138,14 +150,14 @@ export class SnazzyInfoWindow extends google.maps.OverlayView {
     this.clearListeners(true);
   }
 
-  setContent(content) {
+  public setContent(content: any): void {
     this._opts.content = content;
     if (this._html && this._html.content) {
       setHTML(this._html.content, content);
     }
   }
 
-  setPosition(latLng) {
+  public setPosition(latLng: google.maps.LatLng | { lat: number; lng: number }): void {
     this._position = toLatLng(latLng);
     if (this._isOpen && this._position) {
       this.draw();
@@ -154,12 +166,12 @@ export class SnazzyInfoWindow extends google.maps.OverlayView {
     }
   }
 
-  setWrapperClass(wrapperClass) {
+  public setWrapperClass(wrapperClass: string): void {
     if (this._html && this._html.wrapper) {
       const w = this._html.wrapper;
-      w.className = `${_classPrefix}wrapper-${this._opts.placement}`;
+      w.className = `${CLASS_PREFIX}wrapper-${this._opts.placement}`;
       if (this._opts.border) {
-        w.className += ` ${_classPrefix}has-border`;
+        w.className += ` ${CLASS_PREFIX}has-border`;
       }
       if (wrapperClass) {
         w.className += ` ${wrapperClass}`;
@@ -168,7 +180,7 @@ export class SnazzyInfoWindow extends google.maps.OverlayView {
     this._opts.wrapperClass = wrapperClass;
   }
 
-  getWrapper() {
+  public getWrapper(): any {
     if (this._html) {
       return this._html.wrapper;
     }
@@ -176,11 +188,8 @@ export class SnazzyInfoWindow extends google.maps.OverlayView {
   }
 
   // Implementation of OverlayView draw method.
-  draw() {
-    if (!this.getMap() || !this._html) {
-      return;
-    }
-    if (!this._marker && !this._position) {
+  public draw(): void {
+    if (!this.getMap() || !this._html || (!this._marker && !this._position)) {
       return;
     }
 
@@ -225,7 +234,7 @@ export class SnazzyInfoWindow extends google.maps.OverlayView {
       this._html.contentWrapper.style.color = this._opts.fontColor;
     }
     // 7. Pointer
-    // Check if the pointer is enabled. Also make sure the value isn't just the boolean true.
+    // Check if the pointer is enabled. Also make sure the value isn't just the boolean true value.
     if (this._opts.pointer && this._opts.pointer !== true) {
       if (this._opts.shadow) {
         this._html.shadowPointer.style.width = this._opts.pointer;
@@ -236,11 +245,10 @@ export class SnazzyInfoWindow extends google.maps.OverlayView {
       }
       this._html.pointerBg.style.borderWidth = this._opts.pointer;
     }
-
     // 8. Border
     if (this._opts.border) {
       // Calculate the border width
-      let bWidth = 0;
+      let bWidth: IParsedAttribute | number = 0;
       if (this._opts.border.width !== undefined) {
         bWidth = parseAttribute(this._opts.border.width, '0px');
         this._html.contentWrapper.style.borderWidth = bWidth.value + bWidth.units;
@@ -250,10 +258,13 @@ export class SnazzyInfoWindow extends google.maps.OverlayView {
 
       if (this._opts.pointer) {
         // Calculate the pointer length
-        let pLength = Math.min(this._html.pointerBorder.offsetHeight, this._html.pointerBorder.offsetWidth);
+        let pLength: IParsedAttribute | number = Math.min(
+          this._html.pointerBorder.offsetHeight,
+          this._html.pointerBorder.offsetWidth,
+        );
         pLength = parseAttribute(`${pLength}px`, '0px');
 
-        let triangleDiff = Math.round(bWidth.value * (_root2 - 1));
+        let triangleDiff = Math.round(bWidth.value * (ROOT_2 - 1));
         triangleDiff = Math.min(triangleDiff, pLength.value);
 
         this._html.pointerBg.style.borderWidth = pLength.value - triangleDiff + pLength.units;
@@ -274,26 +285,26 @@ export class SnazzyInfoWindow extends google.maps.OverlayView {
     if (this._opts.shadow) {
       // Check if any of the shadow settings have actually been set
       const shadow = this._opts.shadow;
-      const isSet = (attribute) => {
+      const isSet = (attribute: string) => {
         const v = shadow[attribute];
         return v !== undefined && v != null;
       };
 
       if (isSet('h') || isSet('v') || isSet('blur') || isSet('spread') || isSet('color')) {
-        const hOffset = parseAttribute(shadow.h, _defaultShadow.h);
-        const vOffset = parseAttribute(shadow.v, _defaultShadow.v);
-        const blur = parseAttribute(shadow.blur, _defaultShadow.blur);
-        const spread = parseAttribute(shadow.spread, _defaultShadow.spread);
-        const color = shadow.color || _defaultShadow.color;
-        const formatBoxShadow = (h, v) => {
+        const hOffset = parseAttribute(shadow.h, DEFAULT_SHADOW.h);
+        const vOffset = parseAttribute(shadow.v, DEFAULT_SHADOW.v);
+        const blur = parseAttribute(shadow.blur, DEFAULT_SHADOW.blur);
+        const spread = parseAttribute(shadow.spread, DEFAULT_SHADOW.spread);
+        const color = shadow.color || DEFAULT_SHADOW.color;
+        const formatBoxShadow = (h: string, v: string) => {
           return `${h} ${v} ${blur.original} ${spread.original} ${color}`;
         };
 
-        this._html.shadowFrame.style.boxShadow = formatBoxShadow(hOffset.original, vOffset.original);
+        this._html.shadowFrame.style.boxShadow = formatBoxShadow(hOffset.original || '0px', vOffset.original || '0px');
 
         // Correctly rotate the shadows before the css transform
-        const hRotated = _inverseRoot2 * (hOffset.value - vOffset.value) + hOffset.units;
-        const vRotated = _inverseRoot2 * (hOffset.value + vOffset.value) + vOffset.units;
+        const hRotated = INVERSE_ROOT_2 * (hOffset.value - vOffset.value) + hOffset.units;
+        const vRotated = INVERSE_ROOT_2 * (hOffset.value + vOffset.value) + vOffset.units;
         if (this._html.shadowPointerInner) {
           this._html.shadowPointerInner.style.boxShadow = formatBoxShadow(hRotated, vRotated);
         }
@@ -303,7 +314,9 @@ export class SnazzyInfoWindow extends google.maps.OverlayView {
       }
     }
 
-    const divPixel = this.getProjection().fromLatLngToDivPixel(this._position || this._marker.position);
+    const divPixel = this.getProjection().fromLatLngToDivPixel(
+      this._position || this._marker.getPosition() || new google.maps.LatLng({ lat: 0, lng: 0 }),
+    );
     if (divPixel) {
       this._html.floatWrapper.style.top = `${Math.floor(divPixel.y)}px`;
       this._html.floatWrapper.style.left = `${Math.floor(divPixel.x)}px`;
@@ -313,30 +326,29 @@ export class SnazzyInfoWindow extends google.maps.OverlayView {
       this.resize();
       this.reposition();
       this.activateCallback('afterOpen');
-      google.maps.event.trigger(this.getMap(), `${_eventPrefix}opened`, this);
+      google.maps.event.trigger(this.getMap(), `${EVENT_PREFIX}opened`, this);
     }
   }
 
   // Implementation of OverlayView onAdd method.
-  onAdd() {
+  public onAdd(): void {
     if (this._html) {
       return;
     }
     // Used for creating new elements
-    const applyCss = (element, args) => {
+    const applyCss = (element: HTMLDivElement, args: string[]) => {
       if (element && args) {
-        for (let i = 0; i < args.length; i++) {
-          const className = args[i];
-          if (className) {
+        for (const arg of args) {
+          if (arg) {
             if (element.className) {
               element.className += ' ';
             }
-            element.className += _classPrefix + className;
+            element.className += CLASS_PREFIX + arg;
           }
         }
       }
     };
-    const newElement = (...args) => {
+    const newElement = (...args: string[]) => {
       const element = document.createElement('div');
       applyCss(element, args);
       return element;
@@ -420,7 +432,7 @@ export class SnazzyInfoWindow extends google.maps.OverlayView {
     }
     if (this._opts.closeWhenOthersOpen) {
       this.trackListener(
-        google.maps.event.addListener(map, `${_eventPrefix}opened`, (other) => {
+        google.maps.event.addListener(map, `${EVENT_PREFIX}opened`, (other) => {
           if (this !== other) {
             this.close();
           }
@@ -433,7 +445,7 @@ export class SnazzyInfoWindow extends google.maps.OverlayView {
     this._previousHeight = null;
     this.trackListener(
       google.maps.event.addListener(map, 'bounds_changed', () => {
-        const d = map.getDiv();
+        const d = (map as google.maps.Map).getDiv() as HTMLDivElement;
         const ow = d.offsetWidth;
         const oh = d.offsetHeight;
         const pw = this._previousWidth;
@@ -504,7 +516,7 @@ export class SnazzyInfoWindow extends google.maps.OverlayView {
   }
 
   // Implementation of OverlayView onRemove method
-  onRemove() {
+  public onRemove(): void {
     this.activateCallback('close');
     if (this._html) {
       const parent = this._html.floatWrapper.parentElement;
@@ -518,15 +530,22 @@ export class SnazzyInfoWindow extends google.maps.OverlayView {
   }
 
   // The map inner bounds used for panning and resizing
-  getMapInnerBounds() {
-    const mb = this.getMap()
-      .getDiv()
-      .getBoundingClientRect();
+  public getMapInnerBounds(): {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+    width: number;
+    height: number;
+  } {
+    const mb = (this.getMap() as google.maps.Map).getDiv().getBoundingClientRect();
     const mib = {
       top: mb.top + this._opts.edgeOffset.top,
       right: mb.right - this._opts.edgeOffset.right,
       bottom: mb.bottom - this._opts.edgeOffset.bottom,
       left: mb.left + this._opts.edgeOffset.left,
+      width: 0,
+      height: 0,
     };
     mib.width = mib.right - mib.left;
     mib.height = mib.bottom - mib.top;
@@ -534,7 +553,7 @@ export class SnazzyInfoWindow extends google.maps.OverlayView {
   }
 
   // Pan the Google Map such that the info window is visible
-  reposition() {
+  public reposition(): void {
     if (!this._opts.panOnOpen || !this._html) {
       return;
     }
@@ -553,12 +572,12 @@ export class SnazzyInfoWindow extends google.maps.OverlayView {
       dy = wb.top - (mib.bottom - wb.height);
     }
     if (dx !== 0 || dy !== 0) {
-      this.getMap().panBy(dx, dy);
+      (this.getMap() as google.maps.Map).panBy(dx, dy);
     }
   }
 
   // Resize the info window to fit within the map bounds and edge offset
-  resize() {
+  public resize(): void {
     if (!this._html) {
       return;
     }
@@ -580,4 +599,3 @@ export class SnazzyInfoWindow extends google.maps.OverlayView {
     this._html.content.style.maxHeight = `${maxHeight}px`;
   }
 }
-// @ts-ignore-end

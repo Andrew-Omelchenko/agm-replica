@@ -3,7 +3,7 @@ export const CLASS_PREFIX = 'sir-';
 export const ROOT_2 = 1.41421356237;
 export const INVERSE_ROOT_2 = 0.7071067811865474;
 
-export const EVENT_PREFIX = 'snazzy-info-window-';
+export const EVENT_PREFIX = 'snazzy-info-window-replica-';
 
 export const DEFAULT_SHADOW = {
   h: '0px',
