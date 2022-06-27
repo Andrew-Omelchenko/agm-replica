@@ -162,6 +162,6 @@ export class AgmrInfoWindowComponent implements OnInit, OnChanges, OnDestroy {
 
   /** @internal */
   public toString(): string {
-    return 'AgmInfoWindow-' + this._id.toString();
+    return 'AgmrInfoWindow-' + this._id.toString();
   }
 }

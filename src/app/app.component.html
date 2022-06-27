@@ -24,8 +24,40 @@
       [pointer]="true"
     >
       <ng-template>
-        <div>Hi, this is the content of the <strong>Snazzy Info Window</strong></div>
+        <div>Hi, this is the content of the <strong>Snazzy Info Window #1</strong></div>
       </ng-template>
     </agmr-snazzy-info-window>
+  </agmr-marker>
+  <agmr-marker
+    [latitude]="49.24021"
+    [longitude]="-123.21799"
+    [label]="'M'"
+    [title]="'Test marker'"
+    [markerClickable]="true"
+  >
+    <agmr-snazzy-info-window
+      [openOnMarkerClick]="true"
+      [placement]="'right'"
+      [panOnOpen]="true"
+      [showCloseButton]="true"
+      [closeOnMapClick]="true"
+      [closeWhenOthersOpen]="true"
+      [pointer]="true"
+    >
+      <ng-template>
+        <div>Hi, this is the content of the <strong>Snazzy Info Window #2</strong></div>
+      </ng-template>
+    </agmr-snazzy-info-window>
+  </agmr-marker>
+  <agmr-marker
+    [latitude]="49.21"
+    [longitude]="-123.16021"
+    [label]="'M'"
+    [title]="'Test marker'"
+    [markerClickable]="true"
+  >
+    <agmr-info-window [disableAutoPan]="true">
+      Hi, this is the content of the <strong>info window</strong>
+    </agmr-info-window>
   </agmr-marker>
 </agmr-map>
