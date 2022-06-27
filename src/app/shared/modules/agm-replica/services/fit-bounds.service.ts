@@ -8,8 +8,8 @@ import { BoundsMap } from '../types/common.types';
 @Injectable()
 export class FitBoundsService {
   private readonly bounds$: Observable<google.maps.LatLngBounds>;
-  protected readonly boundsChangeSampleTime$ = new BehaviorSubject<number>(200);
-  protected readonly includeInBounds$ = new BehaviorSubject<BoundsMap>(
+  private readonly boundsChangeSampleTime$ = new BehaviorSubject<number>(200);
+  private readonly includeInBounds$ = new BehaviorSubject<BoundsMap>(
     new Map<string, google.maps.LatLng | google.maps.LatLngLiteral>(),
   );
 
@@ -22,6 +22,26 @@ export class FitBoundsService {
     );
   }
 
+  public addToBounds(latLng: google.maps.LatLng | google.maps.LatLngLiteral): void {
+    const id = this.createIdentifier(latLng);
+    if (this.includeInBounds$.value.has(id)) {
+      return;
+    }
+    const boundsMap = this.includeInBounds$.value;
+    boundsMap.set(id, latLng);
+    this.includeInBounds$.next(boundsMap);
+  }
+
+  public removeFromBounds(latLng: google.maps.LatLng | google.maps.LatLngLiteral): void {
+    const boundsMap = this.includeInBounds$.value;
+    boundsMap.delete(this.createIdentifier(latLng));
+    this.includeInBounds$.next(boundsMap);
+  }
+
+  public changeFitBoundsChangeSampleTime(timeMs: number): void {
+    this.boundsChangeSampleTime$.next(timeMs);
+  }
+
   public getBounds$(): Observable<google.maps.LatLngBounds> {
     return this.bounds$;
   }
@@ -32,5 +52,9 @@ export class FitBoundsService {
     const bounds = new google.maps.LatLngBounds();
     includeInBounds.forEach((b) => bounds.extend(b));
     return bounds;
+  }
+
+  private createIdentifier(latLng: google.maps.LatLng | google.maps.LatLngLiteral): string {
+    return `${latLng.lat}+${latLng.lng}`;
   }
 }
