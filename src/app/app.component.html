@@ -10,13 +10,13 @@
   <agmr-marker
     [latitude]="49.23099"
     [longitude]="-123.17769"
-    [label]="'M'"
+    [label]="'M1'"
     [title]="'Test marker'"
     [markerClickable]="true"
   >
     <agmr-snazzy-info-window
       [openOnMarkerClick]="true"
-      [placement]="'right'"
+      [placement]="'left'"
       [panOnOpen]="true"
       [showCloseButton]="true"
       [closeOnMapClick]="true"
@@ -31,7 +31,7 @@
   <agmr-marker
     [latitude]="49.24021"
     [longitude]="-123.21799"
-    [label]="'M'"
+    [label]="'M2'"
     [title]="'Test marker'"
     [markerClickable]="true"
   >
@@ -52,12 +52,54 @@
   <agmr-marker
     [latitude]="49.21"
     [longitude]="-123.16021"
-    [label]="'M'"
+    [label]="'M3'"
     [title]="'Test marker'"
     [markerClickable]="true"
   >
     <agmr-info-window [disableAutoPan]="true">
       Hi, this is the content of the <strong>info window</strong>
     </agmr-info-window>
+  </agmr-marker>
+  <agmr-marker
+    [latitude]="49.43099"
+    [longitude]="-123.17769"
+    [label]="'M4'"
+    [title]="'Test marker'"
+    [markerClickable]="true"
+  >
+    <agmr-snazzy-info-window
+      [openOnMarkerClick]="true"
+      [placement]="'bottom'"
+      [panOnOpen]="true"
+      [showCloseButton]="true"
+      [closeOnMapClick]="true"
+      [closeWhenOthersOpen]="true"
+      [pointer]="true"
+    >
+      <ng-template>
+        <div>Hi, this is the content of the <strong>Snazzy Info Window #4</strong></div>
+      </ng-template>
+    </agmr-snazzy-info-window>
+  </agmr-marker>
+  <agmr-marker
+    [latitude]="49.23099"
+    [longitude]="-123.07769"
+    [label]="'M5'"
+    [title]="'Test marker'"
+    [markerClickable]="true"
+  >
+    <agmr-snazzy-info-window
+      [openOnMarkerClick]="true"
+      [placement]="'top'"
+      [panOnOpen]="true"
+      [showCloseButton]="true"
+      [closeOnMapClick]="true"
+      [closeWhenOthersOpen]="true"
+      [pointer]="true"
+    >
+      <ng-template>
+        <div>Hi, this is the content of the <strong>Snazzy Info Window #1</strong></div>
+      </ng-template>
+    </agmr-snazzy-info-window>
   </agmr-marker>
 </agmr-map>
