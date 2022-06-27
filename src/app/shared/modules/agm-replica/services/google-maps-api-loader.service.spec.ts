@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 
-import { GoogleMapsApiLoaderService } from './api-loader.service';
+import { GoogleMapsApiLoaderService } from './google-maps-api-loader.service';
 
-describe('ApiLoaderService', () => {
+describe('GoogleMapsApiLoaderService', () => {
   let service: GoogleMapsApiLoaderService;
 
   beforeEach(() => {

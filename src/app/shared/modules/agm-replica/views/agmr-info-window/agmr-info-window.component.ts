@@ -9,10 +9,10 @@ import {
   Output,
   SimpleChange,
 } from '@angular/core';
+import { first } from 'rxjs/operators';
 import { IdGenerator } from '../../utils/id-generator';
 import { AgmrMarker } from '../../directives/agmr-marker.directive';
 import { InfoWindowManagerService } from '../../services/info-window-manager.service';
-import { first } from 'rxjs/operators';
 
 @Component({
   selector: 'agmr-info-window',
