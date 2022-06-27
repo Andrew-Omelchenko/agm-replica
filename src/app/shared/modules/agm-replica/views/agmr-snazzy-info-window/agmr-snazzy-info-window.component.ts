@@ -17,7 +17,6 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { AgmrMarker } from '../../directives/agmr-marker.directive';
-import { GoogleMapsApiLoaderService } from '../../services/google-maps-api-loader.service';
 import { GoogleMapsApiService } from '../../services/google-maps-api.service';
 import { MarkerManagerService } from '../../services/marker-manager.service';
 import { getSnazzyInfoWindowReplicaInstance } from './snazzy-info-window/classes/snazzy-info-window.class';
@@ -178,7 +177,6 @@ export class AgmrSnazzyInfoWindowComponent implements AfterViewInit, OnDestroy, 
 
   constructor(
     @Optional() @Host() @SkipSelf() private marker: AgmrMarker,
-    private loader: GoogleMapsApiLoaderService,
     private wrapper: GoogleMapsApiService,
     private manager: MarkerManagerService,
   ) {}
@@ -205,9 +203,8 @@ export class AgmrSnazzyInfoWindowComponent implements AfterViewInit, OnDestroy, 
    */
   public ngAfterViewInit(): void {
     const markerObservable = this.manager.getNativeMarker(this.marker);
-    this.snazzyInfoWindowInitialized = this.loader.load().pipe(
+    this.snazzyInfoWindowInitialized = this.wrapper.getNativeMap().pipe(
       first(),
-      switchMap(() => this.wrapper.getNativeMap()),
       switchMap((nativeMap) =>
         markerObservable
           ? markerObservable.pipe(
