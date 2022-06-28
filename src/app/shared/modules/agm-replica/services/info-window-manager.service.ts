@@ -109,12 +109,13 @@ export class InfoWindowManagerService {
   /**
    * Creates a Google Maps event listener for the given InfoWindow as an Observable
    */
-  public createEventObservable<T>(eventName: string, infoWindow: AgmrInfoWindowComponent): Observable<T> {
+  public createEventObservable<T>(eventName: string, infoWindow: AgmrInfoWindowComponent): Observable<T> | undefined {
+    const iWindow = this.infoWindows.get(infoWindow);
+    if (!iWindow) {
+      return undefined;
+    }
     return new Observable((observer: Observer<T>) => {
-      const iWindow = this.infoWindows.get(infoWindow);
-      if (iWindow) {
-        iWindow.subscribe((i) => i.addListener<any>(eventName, (e: T) => this.zone.run(() => observer.next(e))));
-      }
+      iWindow.subscribe((i) => i.addListener<any>(eventName, (e: T) => this.zone.run(() => observer.next(e))));
     });
   }
 }

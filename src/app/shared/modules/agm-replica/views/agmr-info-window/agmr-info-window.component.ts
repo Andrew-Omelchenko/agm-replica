@@ -117,10 +117,13 @@ export class AgmrInfoWindowComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private registerEventListeners(): void {
-    this.infoWindowManager.createEventObservable('closeclick', this).subscribe(() => {
-      this.isOpen = false;
-      this.infoWindowClose.emit();
-    });
+    const eventListenerObservable = this.infoWindowManager.createEventObservable('closeclick', this);
+    if (eventListenerObservable) {
+      eventListenerObservable.subscribe(() => {
+        this.isOpen = false;
+        this.infoWindowClose.emit();
+      });
+    }
   }
 
   private updateOpenState(): void {
