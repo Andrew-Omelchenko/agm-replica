@@ -165,16 +165,15 @@ export class MarkerManagerService {
   public createEventObservable<T extends google.maps.MapMouseEvent | void>(
     eventName: string,
     marker: AgmrMarker,
-  ): Observable<T> {
+  ): Observable<T> | undefined {
+    const markerObservable = this.markers.get(marker);
+    if (!markerObservable) {
+      return undefined;
+    }
     return new Observable((observer) => {
-      const markerObservable = this.markers.get(marker);
-      if (markerObservable) {
-        markerObservable.subscribe((m) => {
-          m.addListener(eventName, (e: T) => this.zone.run(() => observer.next(e)));
-        });
-      } else {
-        observer.next();
-      }
+      markerObservable.subscribe((m) => {
+        m.addListener(eventName, (e: T) => this.zone.run(() => observer.next(e)));
+      });
     });
   }
 }

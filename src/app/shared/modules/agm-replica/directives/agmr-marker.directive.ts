@@ -238,57 +238,95 @@ export class AgmrMarker implements OnDestroy, OnChanges, AfterContentInit, FitBo
   }
 
   private addEventListeners(): void {
-    const cs = this.markerManager.createEventObservable('click', this).subscribe(() => {
-      if (this.openInfoWindow) {
-        this.infoWindow.forEach((infoWindow) => infoWindow.open());
-      }
-      this.markerClick.emit(this);
-    });
-    this.observableSubscriptions.push(cs);
+    const clickEventObservable = this.markerManager.createEventObservable('click', this);
+    if (clickEventObservable) {
+      const cs = clickEventObservable.subscribe(() => {
+        if (this.openInfoWindow) {
+          this.infoWindow.forEach((infoWindow) => infoWindow.open());
+        }
+        this.markerClick.emit(this);
+      });
+      this.observableSubscriptions.push(cs);
+    }
 
-    const dcs = this.markerManager.createEventObservable<google.maps.MapMouseEvent>('dblclick', this).subscribe(() => {
-      this.markerDblClick.emit();
-    });
-    this.observableSubscriptions.push(dcs);
+    const dblClickEventObservable = this.markerManager.createEventObservable<google.maps.MapMouseEvent>(
+      'dblclick',
+      this,
+    );
+    if (dblClickEventObservable) {
+      const dcs = dblClickEventObservable.subscribe(() => {
+        this.markerDblClick.emit();
+      });
+      this.observableSubscriptions.push(dcs);
+    }
 
-    const rc = this.markerManager.createEventObservable<google.maps.MapMouseEvent>('rightclick', this).subscribe(() => {
-      this.markerRightClick.emit();
-    });
-    this.observableSubscriptions.push(rc);
+    const rightClickEventObservable = this.markerManager.createEventObservable<google.maps.MapMouseEvent>(
+      'rightclick',
+      this,
+    );
+    if (rightClickEventObservable) {
+      const rc = rightClickEventObservable.subscribe(() => {
+        this.markerRightClick.emit();
+      });
+      this.observableSubscriptions.push(rc);
+    }
 
-    const ds = this.markerManager.createEventObservable<google.maps.MapMouseEvent>('dragstart', this).subscribe((e) => {
-      this.dragStart.emit(e);
-    });
-    this.observableSubscriptions.push(ds);
+    const dragStartEventObservable = this.markerManager.createEventObservable<google.maps.MapMouseEvent>(
+      'dragstart',
+      this,
+    );
+    if (dragStartEventObservable) {
+      const ds = dragStartEventObservable.subscribe((e) => {
+        this.dragStart.emit(e);
+      });
+      this.observableSubscriptions.push(ds);
+    }
 
-    const d = this.markerManager.createEventObservable<google.maps.MapMouseEvent>('drag', this).subscribe((e) => {
-      this.drag.emit(e);
-    });
-    this.observableSubscriptions.push(d);
+    const dragEventObservable = this.markerManager.createEventObservable<google.maps.MapMouseEvent>('drag', this);
+    if (dragEventObservable) {
+      const d = dragEventObservable.subscribe((e) => {
+        this.drag.emit(e);
+      });
+      this.observableSubscriptions.push(d);
+    }
 
-    const de = this.markerManager.createEventObservable<google.maps.MapMouseEvent>('dragend', this).subscribe((e) => {
-      this.dragEnd.emit(e);
-    });
-    this.observableSubscriptions.push(de);
+    const dragEndEventObservable = this.markerManager.createEventObservable<google.maps.MapMouseEvent>('dragend', this);
+    if (dragEndEventObservable) {
+      const de = dragEndEventObservable.subscribe((e) => {
+        this.dragEnd.emit(e);
+      });
+      this.observableSubscriptions.push(de);
+    }
 
-    const mover = this.markerManager
-      .createEventObservable<google.maps.MapMouseEvent>('mouseover', this)
-      .subscribe((e) => {
+    const mouseOverEventObservable = this.markerManager.createEventObservable<google.maps.MapMouseEvent>(
+      'mouseover',
+      this,
+    );
+    if (mouseOverEventObservable) {
+      const mover = mouseOverEventObservable.subscribe((e) => {
         this.mouseOver.emit(e);
       });
-    this.observableSubscriptions.push(mover);
+      this.observableSubscriptions.push(mover);
+    }
 
-    const mout = this.markerManager
-      .createEventObservable<google.maps.MapMouseEvent>('mouseout', this)
-      .subscribe((e) => {
+    const mouseOutEventObservable = this.markerManager.createEventObservable<google.maps.MapMouseEvent>(
+      'mouseout',
+      this,
+    );
+    if (mouseOutEventObservable) {
+      const mout = mouseOutEventObservable.subscribe((e) => {
         this.mouseOut.emit(e);
       });
-    this.observableSubscriptions.push(mout);
+      this.observableSubscriptions.push(mout);
+    }
 
-    const anChng = this.markerManager.createEventObservable<void>('animation_changed', this).subscribe(() => {
-      this.animationChange.emit(this.animation);
-    });
-    this.observableSubscriptions.push(anChng);
+    const animationChangedEventObservable = this.markerManager.createEventObservable<void>('animation_changed', this);
+    if (animationChangedEventObservable) {
+      const anChng = animationChangedEventObservable.subscribe(() => {
+        this.animationChange.emit(this.animation);
+      });
+      this.observableSubscriptions.push(anChng);
+    }
   }
 
   /** @internal */

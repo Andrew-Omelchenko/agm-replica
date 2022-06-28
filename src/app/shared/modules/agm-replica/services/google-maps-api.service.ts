@@ -58,6 +58,19 @@ export class GoogleMapsApiService {
     });
   }
 
+  public createPolyline(options: google.maps.PolylineOptions): Observable<google.maps.Polyline> {
+    return this.zone.runOutsideAngular(() => {
+      return this.getNativeMap().pipe(
+        first(),
+        map((m: google.maps.Map) => {
+          const line = new google.maps.Polyline(options);
+          line.setMap(m);
+          return line;
+        }),
+      );
+    });
+  }
+
   public setCenter(latLng: google.maps.LatLngLiteral): void {
     this.zone.runOutsideAngular(() =>
       this.mapSubject$.pipe(first()).subscribe((m: google.maps.Map) => m.setCenter(latLng)),

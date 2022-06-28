@@ -18,6 +18,10 @@ import { AgmrMarker } from './directives/agmr-marker.directive';
 import { AgmrInfoWindowComponent } from './views/agmr-info-window/agmr-info-window.component';
 import { InfoWindowManagerService } from './services/info-window-manager.service';
 import { AgmrSnazzyInfoWindowComponent } from './views/agmr-snazzy-info-window/agmr-snazzy-info-window.component';
+import { AgmrPolyline } from './directives/agmr-polyline.directive';
+import { AgmrPolylinePoint } from './directives/agmr-polyline-point.directive';
+import { AgmrPolylineIcon } from './directives/agmr-polyline-icon.directive';
+import { PolylineManagerService } from './services/polyline-manager.service';
 
 @NgModule({
   declarations: [
@@ -32,6 +36,9 @@ import { AgmrSnazzyInfoWindowComponent } from './views/agmr-snazzy-info-window/a
     AgmrMarker,
     AgmrInfoWindowComponent,
     AgmrSnazzyInfoWindowComponent,
+    AgmrPolyline,
+    AgmrPolylinePoint,
+    AgmrPolylineIcon,
   ],
   imports: [CommonModule],
   exports: [AgmrMapComponent, AgmrMarker, AgmrInfoWindowComponent, AgmrSnazzyInfoWindowComponent],
@@ -47,6 +54,7 @@ export class AgmReplicaModule {
         FitBoundsService,
         MarkerManagerService,
         InfoWindowManagerService,
+        PolylineManagerService,
       ],
     };
   }
