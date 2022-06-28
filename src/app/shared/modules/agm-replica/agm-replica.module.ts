@@ -41,7 +41,15 @@ import { PolylineManagerService } from './services/polyline-manager.service';
     AgmrPolylineIcon,
   ],
   imports: [CommonModule],
-  exports: [AgmrMapComponent, AgmrMarker, AgmrInfoWindowComponent, AgmrSnazzyInfoWindowComponent],
+  exports: [
+    AgmrMapComponent,
+    AgmrMarker,
+    AgmrInfoWindowComponent,
+    AgmrSnazzyInfoWindowComponent,
+    AgmrPolyline,
+    AgmrPolylinePoint,
+    AgmrPolylineIcon,
+  ],
 })
 export class AgmReplicaModule {
   static forRoot(config?: ILoaderApiConfig): ModuleWithProviders<AgmReplicaModule> {

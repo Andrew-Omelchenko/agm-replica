@@ -1,7 +1,7 @@
 import { Directive, Input, OnInit } from '@angular/core';
 
 @Directive({
-  selector: '[agmr-polyline agmr-icon-sequence]',
+  selector: 'agmr-polyline agmr-icon-sequence',
 })
 // tslint:disable:directive-class-suffix
 export class AgmrPolylineIcon implements OnInit {
@@ -90,6 +90,7 @@ export class AgmrPolylineIcon implements OnInit {
   @Input() public strokeWeight: number | undefined;
 
   public ngOnInit(): void {
+    console.log('init');
     if (!this.path) {
       throw new Error('Icon Sequence path is required');
     }

@@ -22,6 +22,7 @@ import { MarkerManagerService } from '../../services/marker-manager.service';
 import { getSnazzyInfoWindowReplicaInstance } from './snazzy-info-window/classes/snazzy-info-window.class';
 import { first, map, shareReplay, switchMap } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
+import { TSnazzyInfoWindowPlacement } from '../../types/common.types';
 
 @Component({
   selector: 'agmr-snazzy-info-window',
@@ -54,7 +55,7 @@ export class AgmrSnazzyInfoWindowComponent implements AfterViewInit, OnDestroy, 
   /**
    * Choose where you want the info window to be displayed, relative to the marker.
    */
-  @Input() public placement: 'top' | 'bottom' | 'left' | 'right' = 'top';
+  @Input() public placement: TSnazzyInfoWindowPlacement = 'top';
 
   /**
    * The max width in pixels of the info window.

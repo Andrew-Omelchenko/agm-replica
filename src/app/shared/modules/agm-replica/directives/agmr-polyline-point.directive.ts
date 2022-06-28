@@ -6,7 +6,7 @@ import { FitBoundsAccessor } from '../accessors/fit-bounds.accessor';
 import { IFitBoundsDetails } from '../models/fit-bounds-details.model';
 
 @Directive({
-  selector: '[agmr-polyline-point]',
+  selector: 'agmr-polyline-point',
   providers: [{ provide: FitBoundsAccessor, useExisting: forwardRef(() => AgmrPolylinePoint) }],
 })
 // tslint:disable:directive-class-suffix

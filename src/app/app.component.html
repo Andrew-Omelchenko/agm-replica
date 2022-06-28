@@ -8,15 +8,16 @@
   [style.height.vw]="63"
 >
   <agmr-marker
-    [latitude]="49.23099"
-    [longitude]="-123.17769"
-    [label]="'M1'"
-    [title]="'Test marker'"
+    *ngFor="let point of points; index as i"
+    [latitude]="point.lat"
+    [longitude]="point.lng"
+    [label]="'M' + i"
+    [title]="'Test marker #' + i"
     [markerClickable]="true"
   >
     <agmr-snazzy-info-window
       [openOnMarkerClick]="true"
-      [placement]="'left'"
+      [placement]="point.placement"
       [panOnOpen]="true"
       [showCloseButton]="true"
       [closeOnMapClick]="true"
@@ -24,82 +25,28 @@
       [pointer]="true"
     >
       <ng-template>
-        <div>Hi, this is the content of the <strong>Snazzy Info Window #1</strong></div>
+        <div>
+          Hi, this is the content of the <strong>Snazzy Info Window #{{ i }}</strong>
+        </div>
       </ng-template>
     </agmr-snazzy-info-window>
   </agmr-marker>
-  <agmr-marker
-    [latitude]="49.24021"
-    [longitude]="-123.21799"
-    [label]="'M2'"
-    [title]="'Test marker'"
-    [markerClickable]="true"
-  >
-    <agmr-snazzy-info-window
-      [openOnMarkerClick]="true"
-      [placement]="'right'"
-      [panOnOpen]="true"
-      [showCloseButton]="true"
-      [closeOnMapClick]="true"
-      [closeWhenOthersOpen]="true"
-      [pointer]="true"
-    >
-      <ng-template>
-        <div>Hi, this is the content of the <strong>Snazzy Info Window #2</strong></div>
-      </ng-template>
-    </agmr-snazzy-info-window>
-  </agmr-marker>
-  <agmr-marker
-    [latitude]="49.21"
-    [longitude]="-123.16021"
-    [label]="'M3'"
-    [title]="'Test marker'"
-    [markerClickable]="true"
-  >
-    <agmr-info-window [disableAutoPan]="true">
-      Hi, this is the content of the <strong>info window</strong>
-    </agmr-info-window>
-  </agmr-marker>
-  <agmr-marker
-    [latitude]="49.43099"
-    [longitude]="-123.17769"
-    [label]="'M4'"
-    [title]="'Test marker'"
-    [markerClickable]="true"
-  >
-    <agmr-snazzy-info-window
-      [openOnMarkerClick]="true"
-      [placement]="'bottom'"
-      [panOnOpen]="true"
-      [showCloseButton]="true"
-      [closeOnMapClick]="true"
-      [closeWhenOthersOpen]="true"
-      [pointer]="true"
-    >
-      <ng-template>
-        <div>Hi, this is the content of the <strong>Snazzy Info Window #4</strong></div>
-      </ng-template>
-    </agmr-snazzy-info-window>
-  </agmr-marker>
-  <agmr-marker
-    [latitude]="49.23099"
-    [longitude]="-123.07769"
-    [label]="'M5'"
-    [title]="'Test marker'"
-    [markerClickable]="true"
-  >
-    <agmr-snazzy-info-window
-      [openOnMarkerClick]="true"
-      [placement]="'top'"
-      [panOnOpen]="true"
-      [showCloseButton]="true"
-      [closeOnMapClick]="true"
-      [closeWhenOthersOpen]="true"
-      [pointer]="true"
-    >
-      <ng-template>
-        <div>Hi, this is the content of the <strong>Snazzy Info Window #1</strong></div>
-      </ng-template>
-    </agmr-snazzy-info-window>
-  </agmr-marker>
+  <agmr-polyline [strokeColor]="'#0079b8'" [strokeWeight]="1">
+    <agmr-icon-sequence
+      [path]="'CIRCLE'"
+      [scale]="6"
+      [anchorX]="0"
+      [anchorY]="0"
+      [strokeColor]="'#f6a623'"
+      [strokeWeight]="1"
+      [strokeOpacity]="0.7"
+      [fillColor]="'transparent'"
+      [repeat]="'36px'"
+    ></agmr-icon-sequence>
+    <agmr-polyline-point
+      *ngFor="let point of points; index as i"
+      [latitude]="point.lat"
+      [longitude]="point.lng"
+    ></agmr-polyline-point>
+  </agmr-polyline>
 </agmr-map>
