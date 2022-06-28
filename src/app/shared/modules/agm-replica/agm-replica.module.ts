@@ -22,6 +22,12 @@ import { AgmrPolyline } from './directives/agmr-polyline.directive';
 import { AgmrPolylinePoint } from './directives/agmr-polyline-point.directive';
 import { AgmrPolylineIcon } from './directives/agmr-polyline-icon.directive';
 import { PolylineManagerService } from './services/polyline-manager.service';
+import { CircleManagerService } from './services/circle-manager.service';
+import { PolygonManagerService } from './services/polygon-manager.service';
+import { RectangleManagerService } from './services/rectangle-manager.service';
+import { AgmrCircle } from './directives/agmr-circle.directive';
+import { AgmrPolygon } from './directives/agmr-polygon.directive';
+import { AgmrRectangle } from './directives/agmr-rectangle.directive';
 
 @NgModule({
   declarations: [
@@ -39,6 +45,9 @@ import { PolylineManagerService } from './services/polyline-manager.service';
     AgmrPolyline,
     AgmrPolylinePoint,
     AgmrPolylineIcon,
+    AgmrCircle,
+    AgmrPolygon,
+    AgmrRectangle,
   ],
   imports: [CommonModule],
   exports: [
@@ -49,6 +58,9 @@ import { PolylineManagerService } from './services/polyline-manager.service';
     AgmrPolyline,
     AgmrPolylinePoint,
     AgmrPolylineIcon,
+    AgmrCircle,
+    AgmrPolygon,
+    AgmrRectangle,
   ],
 })
 export class AgmReplicaModule {
@@ -63,6 +75,9 @@ export class AgmReplicaModule {
         MarkerManagerService,
         InfoWindowManagerService,
         PolylineManagerService,
+        CircleManagerService,
+        PolygonManagerService,
+        RectangleManagerService,
       ],
     };
   }

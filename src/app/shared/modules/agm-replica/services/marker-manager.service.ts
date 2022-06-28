@@ -20,7 +20,10 @@ export class MarkerManagerService {
     if (!uiAnim) {
       return of(undefined);
     } else {
-      return this.mapsWrapper.getNativeMap().pipe(map(() => google.maps.Animation[uiAnim]));
+      return this.mapsWrapper.getNativeMap().pipe(
+        first(),
+        map(() => google.maps.Animation[uiAnim]),
+      );
     }
   }
 
@@ -59,7 +62,7 @@ export class MarkerManagerService {
   public deleteMarker(markerDirective: AgmrMarker): void {
     const markerObservable = this.markers.get(markerDirective);
     if (markerObservable) {
-      markerObservable.subscribe((m: google.maps.Marker) => {
+      markerObservable.pipe(first()).subscribe((m: google.maps.Marker) => {
         this.zone.run(() => {
           m.setMap(null);
           this.markers.delete(markerDirective);
@@ -71,65 +74,65 @@ export class MarkerManagerService {
   public updateMarkerPosition(marker: AgmrMarker): void {
     const markerObservable = this.markers.get(marker);
     if (markerObservable && typeof marker?.latitude === 'number' && typeof marker?.longitude === 'number') {
-      markerObservable.subscribe((m: google.maps.Marker) =>
-        m.setPosition({ lat: marker.latitude || 0, lng: marker.longitude || 0 }),
-      );
+      markerObservable
+        .pipe(first())
+        .subscribe((m: google.maps.Marker) => m.setPosition({ lat: marker.latitude || 0, lng: marker.longitude || 0 }));
     }
   }
 
   public updateTitle(marker: AgmrMarker): void {
     const markerObservable = this.markers.get(marker);
     if (markerObservable) {
-      markerObservable.subscribe((m: google.maps.Marker) => m.setTitle(marker?.title || null));
+      markerObservable.pipe(first()).subscribe((m: google.maps.Marker) => m.setTitle(marker?.title || null));
     }
   }
 
   public updateLabel(marker: AgmrMarker): void {
     const markerObservable = this.markers.get(marker);
     if (markerObservable) {
-      markerObservable.subscribe((m: google.maps.Marker) => m.setLabel(marker?.label || null));
+      markerObservable.pipe(first()).subscribe((m: google.maps.Marker) => m.setLabel(marker?.label || null));
     }
   }
 
   public updateDraggable(marker: AgmrMarker): void {
     const markerObservable = this.markers.get(marker);
     if (markerObservable) {
-      markerObservable.subscribe((m: google.maps.Marker) => m.setDraggable(marker?.draggable || false));
+      markerObservable.pipe(first()).subscribe((m: google.maps.Marker) => m.setDraggable(marker?.draggable || false));
     }
   }
 
   public updateIcon(marker: AgmrMarker): void {
     const markerObservable = this.markers.get(marker);
     if (markerObservable) {
-      markerObservable.subscribe((m: google.maps.Marker) => m.setIcon(marker?.iconUrl || null));
+      markerObservable.pipe(first()).subscribe((m: google.maps.Marker) => m.setIcon(marker?.iconUrl || null));
     }
   }
 
   public updateOpacity(marker: AgmrMarker): void {
     const markerObservable = this.markers.get(marker);
     if (markerObservable) {
-      markerObservable.subscribe((m: google.maps.Marker) => m.setOpacity(marker?.opacity || 1));
+      markerObservable.pipe(first()).subscribe((m: google.maps.Marker) => m.setOpacity(marker?.opacity || 1));
     }
   }
 
   public updateVisible(marker: AgmrMarker): void {
     const markerObservable = this.markers.get(marker);
     if (markerObservable) {
-      markerObservable.subscribe((m: google.maps.Marker) => m.setVisible(marker?.visible || true));
+      markerObservable.pipe(first()).subscribe((m: google.maps.Marker) => m.setVisible(marker?.visible || true));
     }
   }
 
   public updateZIndex(marker: AgmrMarker): void {
     const markerObservable = this.markers.get(marker);
     if (markerObservable) {
-      markerObservable.subscribe((m: google.maps.Marker) => m.setZIndex(marker?.zIndex || 0));
+      markerObservable.pipe(first()).subscribe((m: google.maps.Marker) => m.setZIndex(marker?.zIndex || 0));
     }
   }
 
   public updateClickable(marker: AgmrMarker): void {
     const markerObservable = this.markers.get(marker);
     if (markerObservable) {
-      markerObservable.subscribe((m: google.maps.Marker) => m.setClickable(marker?.clickable || false));
+      markerObservable.pipe(first()).subscribe((m: google.maps.Marker) => m.setClickable(marker?.clickable || false));
     }
   }
 
@@ -140,7 +143,10 @@ export class MarkerManagerService {
         .pipe(
           first(),
           switchMap((animation) =>
-            markerObservable.pipe(tap((m: google.maps.Marker) => m.setAnimation(animation || null))),
+            markerObservable.pipe(
+              first(),
+              tap((m: google.maps.Marker) => m.setAnimation(animation || null)),
+            ),
           ),
         )
         .subscribe();
@@ -151,7 +157,7 @@ export class MarkerManagerService {
     return new Observable((observer: Observer<google.maps.Marker | undefined>) => {
       const markerObservable = this.markers.get(marker);
       if (markerObservable) {
-        markerObservable.subscribe((m) => {
+        markerObservable.pipe(first()).subscribe((m) => {
           observer.next(m);
           observer.complete();
         });
@@ -171,7 +177,7 @@ export class MarkerManagerService {
       return undefined;
     }
     return new Observable((observer) => {
-      markerObservable.subscribe((m) => {
+      markerObservable.pipe(first()).subscribe((m) => {
         m.addListener(eventName, (e: T) => this.zone.run(() => observer.next(e)));
       });
     });

@@ -1,7 +1,7 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Observable, of, ReplaySubject, throwError } from 'rxjs';
 import { GoogleMapsApiLoaderService } from './google-maps-api-loader.service';
-import { catchError, first, map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { catchError, first, map, switchMap, tap } from 'rxjs/operators';
 
 @Injectable()
 export class GoogleMapsApiService {
@@ -44,7 +44,7 @@ export class GoogleMapsApiService {
           }
           return new google.maps.Marker(options);
         }),
-        shareReplay(1),
+        // shareReplay(1),
       );
     });
   }
@@ -53,20 +53,66 @@ export class GoogleMapsApiService {
     return this.zone.runOutsideAngular(() => {
       return this.mapSubject$.pipe(
         map(() => new google.maps.InfoWindow(options)),
-        shareReplay(1),
+        // shareReplay(1),
       );
     });
   }
 
   public createPolyline(options: google.maps.PolylineOptions): Observable<google.maps.Polyline> {
     return this.zone.runOutsideAngular(() => {
-      return this.getNativeMap().pipe(
-        first(),
+      return this.mapSubject$.pipe(
         map((m: google.maps.Map) => {
           const line = new google.maps.Polyline(options);
           line.setMap(m);
           return line;
         }),
+        // shareReplay(1),
+      );
+    });
+  }
+
+  /**
+   * Creates a google.map.Circle for the current map.
+   */
+  public createCircle(options: google.maps.CircleOptions): Observable<google.maps.Circle> {
+    return this.zone.runOutsideAngular(() => {
+      return this.mapSubject$.pipe(
+        map((m: google.maps.Map) => {
+          options.map = m;
+          return new google.maps.Circle(options);
+        }),
+        // shareReplay(1),
+      );
+    });
+  }
+
+  /**
+   * Creates a google.map.Polygon for the current map.
+   */
+  public createPolygon(options: google.maps.PolygonOptions): Observable<google.maps.Polygon> {
+    return this.zone.runOutsideAngular(() => {
+      return this.mapSubject$.pipe(
+        map((m: google.maps.Map) => {
+          const polygon = new google.maps.Polygon(options);
+          polygon.setMap(m);
+          return polygon;
+        }),
+        // shareReplay(1),
+      );
+    });
+  }
+
+  /**
+   * Creates a google.map.Rectangle for the current map.
+   */
+  public createRectangle(options: google.maps.RectangleOptions): Observable<google.maps.Rectangle> {
+    return this.zone.runOutsideAngular(() => {
+      return this.mapSubject$.pipe(
+        map((m: google.maps.Map) => {
+          options.map = m;
+          return new google.maps.Rectangle(options);
+        }),
+        // shareReplay(1),
       );
     });
   }
