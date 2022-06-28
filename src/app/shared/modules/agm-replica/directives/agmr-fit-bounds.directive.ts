@@ -3,7 +3,7 @@ import { Subject } from 'rxjs';
 import { IFitBoundsDetails } from '../models/fit-bounds-details.model';
 import { FitBoundsAccessor } from '../accessors/fit-bounds.accessor';
 import { FitBoundsService } from '../services/fit-bounds.service';
-import { distinctUntilChanged, takeUntil, tap } from 'rxjs/operators';
+import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
 @Directive({
   selector: '[agmrFitBounds]',
@@ -16,7 +16,7 @@ export class AgmrFitBounds implements OnInit, OnDestroy, OnChanges {
    */
   @Input() public agmrFitBounds = true;
 
-  private destroyed$: Subject<void> = new Subject<void>();
+  private onDestroy$: Subject<void> = new Subject<void>();
   private latestFitBoundsDetails: IFitBoundsDetails | null = null;
 
   constructor(
@@ -42,8 +42,7 @@ export class AgmrFitBounds implements OnInit, OnDestroy, OnChanges {
           (x: IFitBoundsDetails, y: IFitBoundsDetails) =>
             x.latLng.lat === y.latLng.lat && x.latLng.lng === y.latLng.lng,
         ),
-        tap(console.log),
-        takeUntil(this.destroyed$),
+        takeUntil(this.onDestroy$),
       )
       .subscribe((details) => this.updateBounds(details));
   }
@@ -52,8 +51,8 @@ export class AgmrFitBounds implements OnInit, OnDestroy, OnChanges {
    * @internal
    */
   public ngOnDestroy(): void {
-    this.destroyed$.next();
-    this.destroyed$.complete();
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
     if (this.latestFitBoundsDetails !== null) {
       this.fitBoundsService.removeFromBounds(this.latestFitBoundsDetails.latLng);
     }
