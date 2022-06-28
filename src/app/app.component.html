@@ -1,12 +1,5 @@
 <div>App is running</div>
-<agmr-map
-  [latitude]="49.23099"
-  [longitude]="-123.17769"
-  [zoom]="11"
-  [minZoom]="3"
-  [maxZoom]="14"
-  [style.height.vh]="96"
->
+<agmr-map [zoom]="11" [minZoom]="3" [maxZoom]="14" [fitBounds]="true" [style.height.vh]="96">
   <agmr-marker
     *ngFor="let point of points; index as i"
     [latitude]="point.lat"
@@ -14,6 +7,7 @@
     [label]="'M' + i"
     [title]="'Test marker #' + i"
     [markerClickable]="true"
+    [agmrFitBounds]="true"
   >
     <agmr-snazzy-info-window
       [openOnMarkerClick]="true"

@@ -28,6 +28,7 @@ import { RectangleManagerService } from './services/rectangle-manager.service';
 import { AgmrCircle } from './directives/agmr-circle.directive';
 import { AgmrPolygon } from './directives/agmr-polygon.directive';
 import { AgmrRectangle } from './directives/agmr-rectangle.directive';
+import { AgmrFitBounds } from './directives/agmr-fit-bounds.directive';
 
 @NgModule({
   declarations: [
@@ -48,11 +49,13 @@ import { AgmrRectangle } from './directives/agmr-rectangle.directive';
     AgmrCircle,
     AgmrPolygon,
     AgmrRectangle,
+    AgmrFitBounds,
   ],
   imports: [CommonModule],
   exports: [
     AgmrMapComponent,
     AgmrMarker,
+    AgmrFitBounds,
     AgmrInfoWindowComponent,
     AgmrSnazzyInfoWindowComponent,
     AgmrPolyline,
