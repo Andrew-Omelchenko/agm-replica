@@ -1,6 +1,6 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Observable, Observer, of } from 'rxjs';
-import { first, map, switchMap, tap } from 'rxjs/operators';
+import { first, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 
 import { AgmrMarker } from '../directives/agmr-marker.directive';
 import { GoogleMapsApiService } from './google-maps-api.service';
@@ -28,35 +28,28 @@ export class MarkerManagerService {
   }
 
   public addMarker(marker: AgmrMarker): void {
-    this.convertAnimation(marker.animation)
-      .pipe(
-        first(),
-        map((animation) => {
-          if (marker && typeof marker?.latitude === 'number' && typeof marker?.longitude === 'number') {
-            return this.mapsWrapper.createMarker({
-              animation,
-              position: {
-                lat: marker.latitude,
-                lng: marker.longitude,
-              },
-              label: marker.label,
-              draggable: marker.draggable,
-              icon: marker.iconUrl,
-              opacity: marker.opacity,
-              visible: marker.visible,
-              zIndex: marker.zIndex,
-              title: marker.title,
-              clickable: marker.clickable,
-            });
-          }
-          return undefined;
+    const markerObservable = this.mapsWrapper.getNativeMap().pipe(
+      switchMap(() => this.convertAnimation(marker.animation)),
+      switchMap((animation) =>
+        this.mapsWrapper.createMarker({
+          animation,
+          position: {
+            lat: marker.latitude || 0,
+            lng: marker.longitude || 0,
+          },
+          label: marker.label,
+          draggable: marker.draggable,
+          icon: marker.iconUrl,
+          opacity: marker.opacity,
+          visible: marker.visible,
+          zIndex: marker.zIndex,
+          title: marker.title,
+          clickable: marker.clickable,
         }),
-      )
-      .subscribe((markerObservable) => {
-        if (markerObservable) {
-          this.markers.set(marker, markerObservable);
-        }
-      });
+      ),
+      shareReplay(1),
+    );
+    this.markers.set(marker, markerObservable);
   }
 
   public deleteMarker(markerDirective: AgmrMarker): void {
@@ -176,10 +169,17 @@ export class MarkerManagerService {
     if (!markerObservable) {
       return undefined;
     }
+
+    let listener: google.maps.MapsEventListener | null = null;
     return new Observable((observer) => {
       markerObservable.pipe(first()).subscribe((m) => {
-        m.addListener(eventName, (e: T) => this.zone.run(() => observer.next(e)));
+        listener = m.addListener(eventName, (e: T) => this.zone.run(() => observer.next(e)));
       });
+      return () => {
+        if (listener !== null) {
+          listener.remove();
+        }
+      };
     });
   }
 }

@@ -4,7 +4,7 @@ import { GoogleMapsApiService } from './google-maps-api.service';
 import { AgmrPolyline } from '../directives/agmr-polyline.directive';
 import { AgmrPolylinePoint } from '../directives/agmr-polyline-point.directive';
 import { Observable, Observer, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { map, shareReplay, switchMap } from 'rxjs/operators';
 import { createMVCEventObservable, IMVCEvent } from '../utils/mvc-array.utils';
 
 @Injectable()
@@ -83,6 +83,7 @@ export class PolylineManagerService {
           zIndex: line.zIndex,
         }),
       ),
+      shareReplay(1),
     );
     this.polylines.set(line, polylineObservable);
   }
@@ -150,10 +151,17 @@ export class PolylineManagerService {
     if (!polylineObservable) {
       return undefined;
     }
+
+    let listener: google.maps.MapsEventListener | null = null;
     return new Observable((observer: Observer<T>) => {
       polylineObservable.subscribe((l) => {
-        l.addListener(eventName, (e: T) => this.zone.run(() => observer.next(e)));
+        listener = l.addListener(eventName, (e: T) => this.zone.run(() => observer.next(e)));
       });
+      return () => {
+        if (listener !== null) {
+          listener.remove();
+        }
+      };
     });
   }
 

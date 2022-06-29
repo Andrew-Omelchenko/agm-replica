@@ -44,17 +44,13 @@ export class GoogleMapsApiService {
           }
           return new google.maps.Marker(options);
         }),
-        // shareReplay(1),
       );
     });
   }
 
   public createInfoWindow(options?: google.maps.InfoWindowOptions): Observable<google.maps.InfoWindow> {
     return this.zone.runOutsideAngular(() => {
-      return this.mapSubject$.pipe(
-        map(() => new google.maps.InfoWindow(options)),
-        // shareReplay(1),
-      );
+      return this.mapSubject$.pipe(map(() => new google.maps.InfoWindow(options)));
     });
   }
 
@@ -66,7 +62,6 @@ export class GoogleMapsApiService {
           line.setMap(m);
           return line;
         }),
-        // shareReplay(1),
       );
     });
   }
@@ -81,7 +76,6 @@ export class GoogleMapsApiService {
           options.map = m;
           return new google.maps.Circle(options);
         }),
-        // shareReplay(1),
       );
     });
   }
@@ -97,7 +91,6 @@ export class GoogleMapsApiService {
           polygon.setMap(m);
           return polygon;
         }),
-        // shareReplay(1),
       );
     });
   }
@@ -112,7 +105,6 @@ export class GoogleMapsApiService {
           options.map = m;
           return new google.maps.Rectangle(options);
         }),
-        // shareReplay(1),
       );
     });
   }

@@ -8,6 +8,8 @@
     [title]="'Test marker #' + i"
     [markerClickable]="true"
     [agmrFitBounds]="true"
+    (markerClick)="log('clicked: ', $event)"
+    (markerDblClick)="log('double clicked: ', $event)"
   >
     <agmr-snazzy-info-window
       [openOnMarkerClick]="true"
@@ -53,6 +55,9 @@
     [fillColor]="'transparent'"
     [fillOpacity]="0"
     [circleDraggable]="false"
+    [clickable]="true"
+    (circleClick)="log('clicked: ', $event)"
+    (circleDblClick)="log('double clicked: ', $event)"
   ></agmr-circle>
   <agmr-polygon
     [paths]="polygonPath"
@@ -61,5 +66,22 @@
     [strokeWeight]="1"
     [fillColor]="'transparent'"
     [fillOpacity]="0"
+    [clickable]="true"
+    (polyClick)="log('clicked: ', $event)"
+    (polyDblClick)="log('double clicked: ', $event)"
   ></agmr-polygon>
+  <agmr-rectangle
+    [north]="49.43099"
+    [east]="-123.16021"
+    [south]="49.23099"
+    [west]="-123.21799"
+    [strokeColor]="'#f6a623'"
+    [strokeOpacity]="1"
+    [strokeWeight]="1"
+    [fillColor]="'transparent'"
+    [fillOpacity]="0"
+    [clickable]="true"
+    (rectangleClick)="log('clicked: ', $event)"
+    (rectangleDblClick)="log('double clicked: ', $event)"
+  ></agmr-rectangle>
 </agmr-map>

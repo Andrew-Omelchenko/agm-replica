@@ -3,7 +3,7 @@ import { MarkerManagerService } from './marker-manager.service';
 import { GoogleMapsApiService } from './google-maps-api.service';
 import { AgmrInfoWindowComponent } from '../views/agmr-info-window/agmr-info-window.component';
 import { Observable, Observer } from 'rxjs';
-import { first } from 'rxjs/operators';
+import { first, shareReplay } from 'rxjs/operators';
 
 @Injectable()
 export class InfoWindowManagerService {
@@ -102,7 +102,7 @@ export class InfoWindowManagerService {
     if (typeof infoWindow.latitude === 'number' && typeof infoWindow.longitude === 'number') {
       options.position = { lat: infoWindow.latitude, lng: infoWindow.longitude };
     }
-    const infoWindowObservable = this.mapsWrapper.createInfoWindow(options);
+    const infoWindowObservable = this.mapsWrapper.createInfoWindow(options).pipe(shareReplay(1));
     this.infoWindows.set(infoWindow, infoWindowObservable);
   }
 
@@ -114,8 +114,17 @@ export class InfoWindowManagerService {
     if (!iWindow) {
       return undefined;
     }
+
+    let listener: google.maps.MapsEventListener | null = null;
     return new Observable((observer: Observer<T>) => {
-      iWindow.subscribe((i) => i.addListener<any>(eventName, (e: T) => this.zone.run(() => observer.next(e))));
+      iWindow.subscribe((i) => {
+        listener = i.addListener<any>(eventName, (e: T) => this.zone.run(() => observer.next(e)));
+      });
+      return () => {
+        if (listener !== null) {
+          listener.remove();
+        }
+      };
     });
   }
 }

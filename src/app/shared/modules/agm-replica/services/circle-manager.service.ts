@@ -1,6 +1,6 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Observable, Observer } from 'rxjs';
-import { first, switchMap } from 'rxjs/operators';
+import { first, shareReplay, switchMap } from 'rxjs/operators';
 
 import { GoogleMapsApiService } from './google-maps-api.service';
 import { AgmrCircle } from '../directives/agmr-circle.directive';
@@ -33,6 +33,7 @@ export class CircleManagerService {
           zIndex: circle.zIndex,
         }),
       ),
+      shareReplay(1),
     );
     this.circles.set(circle, circleObservable);
   }
@@ -163,10 +164,17 @@ export class CircleManagerService {
     if (!circleObservable) {
       return undefined;
     }
+
+    let listener: google.maps.MapsEventListener | null = null;
     return new Observable((observer) => {
       circleObservable.pipe(first()).subscribe((c) => {
-        c.addListener(eventName, (e: T) => this.zone.run(() => observer.next(e)));
+        listener = c.addListener(eventName, (e: T) => this.zone.run(() => observer.next(e)));
       });
+      return () => {
+        if (listener !== null) {
+          listener.remove();
+        }
+      };
     });
   }
 }

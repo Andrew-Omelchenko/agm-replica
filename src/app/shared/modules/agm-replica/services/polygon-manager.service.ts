@@ -1,6 +1,6 @@
 import { Injectable, NgZone } from '@angular/core';
 import { merge, Observable, Observer } from 'rxjs';
-import { first, map, skip, startWith, switchMap } from 'rxjs/operators';
+import { first, map, shareReplay, skip, startWith, switchMap } from 'rxjs/operators';
 
 import { AgmrPolygon } from '../directives/agmr-polygon.directive';
 import { GoogleMapsApiService } from './google-maps-api.service';
@@ -15,26 +15,27 @@ export class PolygonManagerService {
 
   constructor(private mapWrapper: GoogleMapsApiService, private zone: NgZone) {}
 
-  public addPolygon(path: AgmrPolygon): void {
+  public addPolygon(polygon: AgmrPolygon): void {
     const polygonObservable = this.mapWrapper.getNativeMap().pipe(
       switchMap(() =>
         this.mapWrapper.createPolygon({
-          clickable: path.clickable,
-          draggable: path.draggable,
-          editable: path.editable,
-          fillColor: path.fillColor,
-          fillOpacity: path.fillOpacity,
-          geodesic: path.geodesic,
-          paths: path.paths,
-          strokeColor: path.strokeColor,
-          strokeOpacity: path.strokeOpacity,
-          strokeWeight: path.strokeWeight,
-          visible: path.visible,
-          zIndex: path.zIndex,
+          clickable: polygon.clickable,
+          draggable: polygon.draggable,
+          editable: polygon.editable,
+          fillColor: polygon.fillColor,
+          fillOpacity: polygon.fillOpacity,
+          geodesic: polygon.geodesic,
+          paths: polygon.paths,
+          strokeColor: polygon.strokeColor,
+          strokeOpacity: polygon.strokeOpacity,
+          strokeWeight: polygon.strokeWeight,
+          visible: polygon.visible,
+          zIndex: polygon.zIndex,
         }),
       ),
+      shareReplay(1),
     );
-    this.polygons.set(path, polygonObservable);
+    this.polygons.set(polygon, polygonObservable);
   }
 
   public updatePolygon(polygon: AgmrPolygon): void {
@@ -106,10 +107,17 @@ export class PolygonManagerService {
     if (!polygonObservable) {
       return undefined;
     }
+
+    let listener: google.maps.MapsEventListener | null = null;
     return new Observable((observer) => {
       polygonObservable.pipe(first()).subscribe((p) => {
-        p.addListener(eventName, (e: T) => this.zone.run(() => observer.next(e)));
+        listener = p.addListener(eventName, (e: T) => this.zone.run(() => observer.next(e)));
       });
+      return () => {
+        if (listener !== null) {
+          listener.remove();
+        }
+      };
     });
   }
 

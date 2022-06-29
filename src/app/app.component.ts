@@ -28,4 +28,8 @@ export class AppComponent {
     { lat: 49.37099, lng: -123.11219 },
     { lat: 49.43099, lng: -123.17769 },
   ];
+
+  public log(message: string, event: any): void {
+    console.log(message, event);
+  }
 }
