@@ -16,20 +16,24 @@ export class PolygonManagerService {
   constructor(private mapWrapper: GoogleMapsApiService, private zone: NgZone) {}
 
   public addPolygon(path: AgmrPolygon): void {
-    const polygonObservable = this.mapWrapper.createPolygon({
-      clickable: path.clickable,
-      draggable: path.draggable,
-      editable: path.editable,
-      fillColor: path.fillColor,
-      fillOpacity: path.fillOpacity,
-      geodesic: path.geodesic,
-      paths: path.paths,
-      strokeColor: path.strokeColor,
-      strokeOpacity: path.strokeOpacity,
-      strokeWeight: path.strokeWeight,
-      visible: path.visible,
-      zIndex: path.zIndex,
-    });
+    const polygonObservable = this.mapWrapper.getNativeMap().pipe(
+      switchMap(() =>
+        this.mapWrapper.createPolygon({
+          clickable: path.clickable,
+          draggable: path.draggable,
+          editable: path.editable,
+          fillColor: path.fillColor,
+          fillOpacity: path.fillOpacity,
+          geodesic: path.geodesic,
+          paths: path.paths,
+          strokeColor: path.strokeColor,
+          strokeOpacity: path.strokeOpacity,
+          strokeWeight: path.strokeWeight,
+          visible: path.visible,
+          zIndex: path.zIndex,
+        }),
+      ),
+    );
     this.polygons.set(path, polygonObservable);
   }
 
