@@ -481,7 +481,7 @@ export class AgmrMapComponent implements OnInit, OnChanges, AfterContentInit, On
   }
 
   private handleMapMouseEvents(): void {
-    type Event = { name: 'rightclick' | 'click' | 'dblclick'; emitter: EventEmitter<google.maps.MouseEvent> };
+    type Event = { name: 'rightclick' | 'click' | 'dblclick'; emitter: EventEmitter<google.maps.MapMouseEvent> };
 
     const events: Event[] = [
       { name: 'click', emitter: this.mapClick },

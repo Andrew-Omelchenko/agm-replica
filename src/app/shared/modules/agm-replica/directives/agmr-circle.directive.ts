@@ -103,53 +103,55 @@ export class AgmrCircle implements OnInit, OnChanges, OnDestroy {
   /**
    * This event emitter gets emitted when the user clicks on the circle.
    */
-  @Output() public circleClick: EventEmitter<google.maps.MouseEvent> = new EventEmitter<google.maps.MouseEvent>();
+  @Output() public circleClick: EventEmitter<google.maps.MapMouseEvent> = new EventEmitter<google.maps.MapMouseEvent>();
 
   /**
    * This event emitter gets emitted when the user clicks on the circle.
    */
-  @Output() public circleDblClick: EventEmitter<google.maps.MouseEvent> = new EventEmitter<google.maps.MouseEvent>();
+  @Output() public circleDblClick: EventEmitter<google.maps.MapMouseEvent> = new EventEmitter<
+    google.maps.MapMouseEvent
+  >();
 
   /**
    * This event is repeatedly fired while the user drags the circle.
    */
   // tslint:disable-next-line: no-output-native
-  @Output() public drag: EventEmitter<google.maps.MouseEvent> = new EventEmitter<google.maps.MouseEvent>();
+  @Output() public drag: EventEmitter<google.maps.MapMouseEvent> = new EventEmitter<google.maps.MapMouseEvent>();
 
   /**
    * This event is fired when the user stops dragging the circle.
    */
-  @Output() public dragEnd: EventEmitter<google.maps.MouseEvent> = new EventEmitter<google.maps.MouseEvent>();
+  @Output() public dragEnd: EventEmitter<google.maps.MapMouseEvent> = new EventEmitter<google.maps.MapMouseEvent>();
 
   /**
    * This event is fired when the user starts dragging the circle.
    */
-  @Output() public dragStart: EventEmitter<google.maps.MouseEvent> = new EventEmitter<google.maps.MouseEvent>();
+  @Output() public dragStart: EventEmitter<google.maps.MapMouseEvent> = new EventEmitter<google.maps.MapMouseEvent>();
 
   /**
    * This event is fired when the DOM mousedown event is fired on the circle.
    */
-  @Output() public mouseDown: EventEmitter<google.maps.MouseEvent> = new EventEmitter<google.maps.MouseEvent>();
+  @Output() public mouseDown: EventEmitter<google.maps.MapMouseEvent> = new EventEmitter<google.maps.MapMouseEvent>();
 
   /**
    * This event is fired when the DOM mousemove event is fired on the circle.
    */
-  @Output() public mouseMove: EventEmitter<google.maps.MouseEvent> = new EventEmitter<google.maps.MouseEvent>();
+  @Output() public mouseMove: EventEmitter<google.maps.MapMouseEvent> = new EventEmitter<google.maps.MapMouseEvent>();
 
   /**
    * This event is fired on circle mouseout.
    */
-  @Output() public mouseOut: EventEmitter<google.maps.MouseEvent> = new EventEmitter<google.maps.MouseEvent>();
+  @Output() public mouseOut: EventEmitter<google.maps.MapMouseEvent> = new EventEmitter<google.maps.MapMouseEvent>();
 
   /**
    * This event is fired on circle mouseover.
    */
-  @Output() public mouseOver: EventEmitter<google.maps.MouseEvent> = new EventEmitter<google.maps.MouseEvent>();
+  @Output() public mouseOver: EventEmitter<google.maps.MapMouseEvent> = new EventEmitter<google.maps.MapMouseEvent>();
 
   /**
    * This event is fired when the DOM mouseup event is fired on the circle.
    */
-  @Output() public mouseUp: EventEmitter<google.maps.MouseEvent> = new EventEmitter<google.maps.MouseEvent>();
+  @Output() public mouseUp: EventEmitter<google.maps.MapMouseEvent> = new EventEmitter<google.maps.MapMouseEvent>();
 
   /**
    * This event is fired when the circle's radius is changed.
@@ -159,7 +161,7 @@ export class AgmrCircle implements OnInit, OnChanges, OnDestroy {
   /**
    * This event is fired when the circle is right-clicked on.
    */
-  @Output() public rightClick: EventEmitter<google.maps.MouseEvent> = new EventEmitter<google.maps.MouseEvent>();
+  @Output() public rightClick: EventEmitter<google.maps.MapMouseEvent> = new EventEmitter<google.maps.MapMouseEvent>();
 
   private circleAddedToManager = false;
   private eventSubscriptions: Subscription[] = [];

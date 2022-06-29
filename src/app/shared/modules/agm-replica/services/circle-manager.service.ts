@@ -1,8 +1,9 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Observable, Observer } from 'rxjs';
+import { first } from 'rxjs/operators';
+
 import { GoogleMapsApiService } from './google-maps-api.service';
 import { AgmrCircle } from '../directives/agmr-circle.directive';
-import { first, switchMap } from 'rxjs/operators';
 
 @Injectable()
 export class CircleManagerService {
@@ -14,25 +15,21 @@ export class CircleManagerService {
   constructor(private mapWrapper: GoogleMapsApiService, private zone: NgZone) {}
 
   public addCircle(circle: AgmrCircle): void {
-    const circleObservable = this.mapWrapper.getNativeMap().pipe(
-      switchMap(() =>
-        this.mapWrapper.createCircle({
-          center: { lat: circle.latitude || 0, lng: circle.longitude || 0 },
-          clickable: circle.clickable,
-          draggable: circle.draggable,
-          editable: circle.editable,
-          fillColor: circle.fillColor,
-          fillOpacity: circle.fillOpacity,
-          radius: circle.radius,
-          strokeColor: circle.strokeColor,
-          strokeOpacity: circle.strokeOpacity,
-          strokePosition: google.maps.StrokePosition[circle.strokePosition],
-          strokeWeight: circle.strokeWeight,
-          visible: circle.visible,
-          zIndex: circle.zIndex,
-        }),
-      ),
-    );
+    const circleObservable = this.mapWrapper.createCircle({
+      center: { lat: circle.latitude || 0, lng: circle.longitude || 0 },
+      clickable: circle.clickable,
+      draggable: circle.draggable,
+      editable: circle.editable,
+      fillColor: circle.fillColor,
+      fillOpacity: circle.fillOpacity,
+      radius: circle.radius,
+      strokeColor: circle.strokeColor,
+      strokeOpacity: circle.strokeOpacity,
+      strokePosition: google.maps.StrokePosition[circle.strokePosition],
+      strokeWeight: circle.strokeWeight,
+      visible: circle.visible,
+      zIndex: circle.zIndex,
+    });
     this.circles.set(circle, circleObservable);
   }
 
