@@ -1,13 +1,13 @@
 import { Inject, Injectable, LOCALE_ID, Optional } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, ReplaySubject } from 'rxjs';
 import { WINDOW } from '../tokens/window';
 import { GoogleMapsScriptProtocol, ILoaderApiConfig } from '../models/api-config.model';
 import { AGMR_API_CONFIG } from '../tokens/api-config';
 
 @Injectable()
 export class GoogleMapsApiLoaderService {
-  private loaded$: Subject<void> = new Subject<void>();
+  private loaded$: ReplaySubject<void> = new ReplaySubject<void>(1);
 
   private config: ILoaderApiConfig;
   private readonly SCRIPT_ID: string = 'agmrGoogleMapsApiScript';
@@ -27,10 +27,9 @@ export class GoogleMapsApiLoaderService {
   public load(): Observable<void> {
     // Google Maps have been already loaded
     if (window?.google?.maps) {
-      return of<void>();
-    }
-    // otherwise...
-    if (!this.blocking$.value) {
+      this.loaded$.next();
+    } else if (!this.blocking$.value) {
+      // otherwise...
       this.blocking$.next(true);
       const script = document.createElement('script');
       script.type = 'text/javascript';

@@ -218,6 +218,7 @@ export class AgmrRectangle implements OnInit, OnChanges, OnDestroy {
     const options: google.maps.RectangleOptions = {};
     const optionKeys = Object.keys(changes).filter((k) => AgmrRectangle.mapOptions.indexOf(k) !== -1);
     optionKeys.forEach((k) => {
+      // @ts-ignore
       options[(k as unknown) as keyof google.maps.RectangleOptions] = changes[k].currentValue;
     });
 

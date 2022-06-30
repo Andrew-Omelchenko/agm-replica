@@ -1,5 +1,5 @@
 <div>App is running</div>
-<agmr-map [zoom]="11" [minZoom]="3" [maxZoom]="14" [fitBounds]="true" [style.height.vh]="96">
+<agmr-map [zoom]="11" [minZoom]="3" [maxZoom]="14" [fitBounds]="true">
   <agmr-marker
     *ngFor="let point of points; index as i"
     [latitude]="point.lat"

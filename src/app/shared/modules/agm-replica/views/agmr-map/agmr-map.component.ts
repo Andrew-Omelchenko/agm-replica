@@ -15,16 +15,32 @@ import {
   ViewChild,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { first, map } from 'rxjs/operators';
+import { first, switchMap, take } from 'rxjs/operators';
 
 import { GoogleMapsApiService } from '../../services/google-maps-api.service';
 import { FitBoundsService } from '../../services/fit-bounds.service';
 import { AgmrMapControl } from './directives/agmr-map-control';
+import { CircleManagerService } from '../../services/circle-manager.service';
+import { InfoWindowManagerService } from '../../services/info-window-manager.service';
+import { MarkerManagerService } from '../../services/marker-manager.service';
+import { PolygonManagerService } from '../../services/polygon-manager.service';
+import { PolylineManagerService } from '../../services/polyline-manager.service';
+import { RectangleManagerService } from '../../services/rectangle-manager.service';
 
 @Component({
   selector: 'agmr-map',
   templateUrl: './agmr-map.component.html',
   styleUrls: ['./agmr-map.component.scss'],
+  providers: [
+    CircleManagerService,
+    FitBoundsService,
+    GoogleMapsApiService,
+    InfoWindowManagerService,
+    MarkerManagerService,
+    PolygonManagerService,
+    PolylineManagerService,
+    RectangleManagerService,
+  ],
 })
 export class AgmrMapComponent implements OnInit, OnChanges, AfterContentInit, OnDestroy {
   /**
@@ -160,7 +176,7 @@ export class AgmrMapComponent implements OnInit, OnChanges, AfterContentInit, On
   /**
    * The map mapTypeId. Defaults to 'roadmap'.
    */
-  @Input() public mapTypeId: keyof typeof google.maps.MapTypeId = 'ROADMAP';
+  @Input() public mapTypeId: 'hybrid' | 'roadmap' | 'satellite' | 'terrain' = 'roadmap';
 
   /**
    * When false, map icons are not clickable. A map icon represents a point of interest,
@@ -340,8 +356,8 @@ export class AgmrMapComponent implements OnInit, OnChanges, AfterContentInit, On
         restriction: this.restriction,
       })
       .pipe(
-        first(),
-        map(() => this.apiWrapper.getNativeMap()),
+        take(1),
+        switchMap(() => this.apiWrapper.getNativeMap()),
       )
       .subscribe((mapInstance) => {
         this.mapReady.emit(mapInstance);
