@@ -9,6 +9,7 @@ import {
   ROOT_2,
 } from '../constants/common.constants';
 import { IListenerRecord } from '../models/listener-record.model';
+import { IDOMListenerRecord } from '../models/dom-listener-record.model';
 import { capitalizePlacement, oppositePlacement, parseAttribute, setHTML } from '../utils/content.utils';
 import { IParsedAttribute } from '../models/parsed-attribute.model';
 
@@ -22,6 +23,7 @@ export function getSnazzyInfoWindowReplicaInstance(options: any) {
     private _position: google.maps.LatLng | null;
     private _isOpen = false;
     private _listeners: IListenerRecord[] = [];
+    private _domListeners: IDOMListenerRecord[] = [];
 
     private _previousWidth: number | null = null;
     private _previousHeight: number | null = null;
@@ -99,6 +101,17 @@ export function getSnazzyInfoWindowReplicaInstance(options: any) {
       this._listeners.push({ listener, persistent });
     }
 
+    // Track the provided DOM listener. A persistent listener means it remains
+    // tracked even if the info window is closed.
+    public trackDOMListener(
+      type: string,
+      listener: google.maps.MapsEventListener,
+      domElement: HTMLElement,
+      persistent: boolean = false,
+    ): void {
+      this._domListeners.push({ type, listener, domElement, persistent });
+    }
+
     // Will clear all listeners that are used during the open state.
     public clearListeners(clearPersistent: boolean = false): void {
       if (this._listeners) {
@@ -111,6 +124,15 @@ export function getSnazzyInfoWindowReplicaInstance(options: any) {
         this._listeners = this._listeners.filter((e) => {
           return e.listener !== null;
         });
+      }
+      if (this._domListeners) {
+        this._domListeners.forEach((e) => {
+          if ((clearPersistent || !e.persistent) && e.listener) {
+            e.domElement.removeEventListener(e.type as string, (e.listener as unknown) as EventListener);
+            e.listener = null;
+          }
+        });
+        this._domListeners = this._domListeners.filter((e) => !!e.listener);
       }
     }
 
@@ -473,14 +495,17 @@ export function getSnazzyInfoWindowReplicaInstance(options: any) {
 
       // Close button
       if (this._opts.showCloseButton && !this._opts.closeButtonMarkup) {
-        this.trackListener(
-          google.maps.event.addDomListener(this._html.closeButton, 'click', (e) => {
+        const type = 'click';
+        this.trackDOMListener(
+          type,
+          this._html.closeButton.addEventListener(type, (e: Event) => {
             e.cancelBubble = true;
             if (e.stopPropagation) {
               e.stopPropagation();
             }
             this.close();
           }),
+          this._html.closeButton,
         );
       }
 
@@ -506,13 +531,15 @@ export function getSnazzyInfoWindowReplicaInstance(options: any) {
         'MozMousePixelScroll',
       ];
       mouseEvents.forEach((event) => {
-        this.trackListener(
-          google.maps.event.addDomListener(this._html.wrapper, event, (e) => {
+        this.trackDOMListener(
+          event,
+          this._html.wrapper.addEventListener(event, (e: Event) => {
             e.cancelBubble = true;
             if (e.stopPropagation) {
               e.stopPropagation();
             }
           }),
+          this._html.wrapper,
         );
       });
 
